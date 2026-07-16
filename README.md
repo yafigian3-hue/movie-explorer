@@ -1,16 +1,44 @@
-# React + Vite
+# Movie Explorer 🎬
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplikasi web sederhana untuk menjelajahi film-film populer yang diambil dari TMDB API. Aplikasi ini dirancang untuk memudahkan pengguna melihat daftar film populer, mencari film berdasarkan judul, dan mendapatkan pengalaman navigasi yang responsif.
 
-Currently, two official plugins are available:
+## 🚀 Fitur Utama
+* **Daftar Film Populer**: Menampilkan data film terkini dari TMDB API.
+* **Pencarian Real-time**: Mencari film dengan mudah berdasarkan judul.
+* **Error Handling**: Sistem penanganan error yang intuitif dengan tombol "Coba Lagi" jika terjadi kendala koneksi atau API.
+* **Loading State**: Animasi loading yang memberikan umpan balik kepada pengguna saat data sedang diproses.
+* **Responsive Design**: Tampilan yang rapi di berbagai ukuran layar menggunakan Tailwind CSS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠 Teknologi yang Digunakan
+* **Framework**: React
+* **Build Tool**: Vite
+* **Styling**: Tailwind CSS
+* **API**: TMDB API
+* **Deployment**: GitHub Pages
 
-## React Compiler
+## 📦 Cara Menjalankan Secara Lokal
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Clone repository ini:**
+   git clone https://github.com/yafigian3-hue/movie-explorer.git
 
-## Expanding the ESLint configuration
+2. **Masuk ke direktori proyek:**
+   cd movie-explorer
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+3. **Install dependencies:**
+   npm install
+
+4. **Buat file .env:**
+   Buat file bernama .env di direktori utama dan tambahkan token API TMDB Anda:
+   VITE_TMDB_TOKEN=token_api_anda_disini
+
+5. **Jalankan aplikasi:**
+   npm run dev
+
+## 📝 Catatan Belajar
+Proyek ini dibangun sebagai bagian dari perjalanan belajar pengembangan web, dengan fokus pada:
+* Implementasi useEffect dan useState untuk manajemen state yang kompleks.
+* Praktek Lifting State Up untuk komunikasi antar komponen.
+* Strategi Error Handling dan User Experience (UX) dalam pengambilan data dari API.
+
+## 👤 Penulis
+yafigian3-hue
