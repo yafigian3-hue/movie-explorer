@@ -6,9 +6,11 @@ export default function Home() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
+  const fetchMovies = () => {
     setIsLoading(true);
+    setError("");
     const token = import.meta.env.VITE_TMDB_TOKEN;
 
     fetch("https://api.themoviedb.org/3/movie/popular", {
@@ -16,7 +18,13 @@ export default function Home() {
         Authorization: `Bearer ${token}`,
       },
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Gagal mengambil data");
+        }
+
+        return response.json();
+      })
       .then((data) => {
         const normalizedMovies = (data.results || []).map((movie) => ({
           id: movie.id,
@@ -32,7 +40,15 @@ export default function Home() {
 
         setMovies(normalizedMovies);
       })
+      .catch((err) => {
+        console.log(err);
+        setError("Gagal memuat film. Silakan coba lagi");
+      })
       .finally(() => setIsLoading(false));
+  };
+
+  useEffect(() => {
+    fetchMovies();
   }, []);
 
   const filteredMovies = movies.filter((movie) =>
@@ -54,14 +70,24 @@ export default function Home() {
               Memuat film populer...
             </p>
           </div>
+        ) : error !== "" ? (
+          <div className="text-center text-red-500 py-10">
+            <p>{error}</p>
+
+            <button
+              onClick={fetchMovies}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              Coba Lagi
+            </button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                       {" "}
             {filteredMovies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-              />
+              <MovieCard key={movie.id} movie={movie} />
             ))}
+                     {" "}
           </div>
         )}
       </div>
