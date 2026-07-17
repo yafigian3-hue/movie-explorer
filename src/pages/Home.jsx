@@ -5,6 +5,7 @@ import MovieCard from "../components/MovieCard";
 export default function Home() {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -52,6 +53,10 @@ export default function Home() {
   }, []);
 
   const filteredMovies = movies.filter((movie) =>
+    movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const searchSuggestions = movies.filter((movie) =>
     movie.title.toLowerCase().includes(search.toLowerCase()),
   );
 
@@ -60,7 +65,8 @@ export default function Home() {
       <Navbar
         search={search}
         setSearch={setSearch}
-        filteredMovies={filteredMovies}
+        setSearchQuery={setSearchQuery}
+        searchSuggestions={searchSuggestions}
       />
 
       <div className="min-h-screen bg-zinc-950 p-6 text-white">

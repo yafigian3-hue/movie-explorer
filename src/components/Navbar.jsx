@@ -4,7 +4,12 @@ import { useState } from "react";
 import { Menu, X, Bell, User, Clapperboard } from "lucide-react";
 import SearchBar from "./SearchBar";
 
-export default function Navigation({ search, setSearch, filteredMovies }) {
+export default function Navigation({
+  search,
+  setSearch,
+  setSearchQuery,
+  searchSuggestions,
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -50,7 +55,8 @@ export default function Navigation({ search, setSearch, filteredMovies }) {
               isMobile={true}
               search={search}
               setSearch={setSearch}
-              filteredMovies={filteredMovies}
+              setSearchQuery={setSearchQuery}
+              searchSuggestions={searchSuggestions}
             />
           </div>
 
