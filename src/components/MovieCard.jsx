@@ -4,7 +4,7 @@ import { Star, Play } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function MovieCard({ movie, onMovieClick }) {
+export default function MovieCard({ movie }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const imageSrc =
@@ -88,7 +88,7 @@ export default function MovieCard({ movie, onMovieClick }) {
             {/* Watch Button */}
             <button
               className="text-red-500 hover:text-red-400 text-xs sm:text-sm font-semibold transition-colors"
-              onClick={() => onMovieClick(movie.title)}
+              onClick={() => navigate(`/movie/${movie.id}`)}
             >
               Watch Now
             </button>

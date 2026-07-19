@@ -4,12 +4,7 @@ import { useState } from "react";
 import { Menu, X, Bell, User, Clapperboard } from "lucide-react";
 import SearchBar from "./SearchBar";
 
-export default function Navigation({
-  search,
-  setSearch,
-  setSearchQuery,
-  searchSuggestions,
-}) {
+export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -51,13 +46,7 @@ export default function Navigation({
 
           {/* Search Bar - Responsive */}
           <div className="flex-1 max-w-xs mx-2 sm:mx-4">
-            <SearchBar
-              isMobile={true}
-              search={search}
-              setSearch={setSearch}
-              setSearchQuery={setSearchQuery}
-              searchSuggestions={searchSuggestions}
-            />
+            <SearchBar isMobile={true} />
           </div>
 
           {/* Right Icons */}

@@ -2,6 +2,9 @@
 
 Aplikasi web sederhana untuk menjelajahi film-film populer yang diambil dari TMDB API. Aplikasi ini dirancang untuk memudahkan pengguna melihat daftar film populer, mencari film berdasarkan judul, dan mendapatkan pengalaman navigasi yang responsif.
 
+## 🌐 Live Demo
+Lihat aplikasi secara langsung di sini: [https://yafigian3-hue.github.io/movie-explorer/](https://yafigian3-hue.github.io/movie-explorer/)
+
 ## 🚀 Fitur Utama
 * **Daftar Film Populer**: Menampilkan data film terkini dari TMDB API.
 * **Pencarian Real-time**: Mencari film dengan mudah berdasarkan judul.

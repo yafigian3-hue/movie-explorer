@@ -1,15 +1,12 @@
 "use client";
 
+import useSearch from "../context/useSearch";
+import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import { Search, X } from "lucide-react";
 
-export default function SearchBar({
-  isMobile = false,
-  search,
-  setSearch,
-  setSearchQuery,
-  searchSuggestions,
-}) {
+export default function SearchBar({ isMobile = false }) {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClear = () => {
@@ -17,6 +14,14 @@ export default function SearchBar({
     setSearchQuery("");
     setIsOpen(false);
   };
+
+
+  const { movies, search, setSearch, setSearchQuery, searchSuggestions } =
+    useSearch();
+  console.log({
+    movies: movies.length,
+    suggestions: searchSuggestions.length,
+  });
 
   return (
     <div className={`relative ${isMobile ? "w-full" : "w-full max-w-xs"}`}>
@@ -69,6 +74,7 @@ export default function SearchBar({
                   setSearch(movie.title);
                   setSearchQuery(movie.title);
                   setIsOpen(false);
+                  navigate(`/movie/${movie.id}`);
                 }}
               >
                 {movie.title}
