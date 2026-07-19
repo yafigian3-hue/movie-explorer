@@ -17,7 +17,7 @@ export default function Navigation({
       <div className="w-full px-3 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-2 sm:gap-4">
           {/* Logo */}
-          <div className="flex items-center space-x-2 flex-shrink-0">
+          <div className="flex items-center space-x-2">
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-red-600 rounded-lg flex items-center justify-center">
               <Clapperboard className="text-white" size={18} />
             </div>
@@ -72,7 +72,7 @@ export default function Navigation({
             {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="lg:hidden p-2 hover:bg-zinc-800 rounded-lg transition-colors flex-shrink-0"
+              className="lg:hidden p-2 hover:bg-zinc-800 rounded-lg transition-colors"
             >
               {isOpen ? (
                 <X size={20} className="text-white" />

@@ -2,6 +2,7 @@
 
 import { Star, Play } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function MovieCard({ movie, onMovieClick }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -14,6 +15,8 @@ export default function MovieCard({ movie, onMovieClick }) {
   const year = movie.year || movie.release_date?.slice(0, 4) || "";
   const genre = movie.genre || "Popular Movie";
 
+  const navigate = useNavigate();
+
   return (
     <div
       className="group relative h-full"
@@ -21,7 +24,10 @@ export default function MovieCard({ movie, onMovieClick }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Card Container */}
-      <div className="relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-600/20 h-full flex flex-col">
+      <div
+        className="relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-600/20 h-full cursor-pointer flex flex-col"
+        onClick={() => navigate(`/movie/${movie.id}`)}
+      >
         {/* Image Container */}
         <div className="relative w-full aspect-video overflow-hidden bg-zinc-950">
           <img
