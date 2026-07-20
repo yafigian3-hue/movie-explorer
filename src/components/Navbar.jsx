@@ -1,5 +1,6 @@
 "use client";
 
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Menu, X, Bell, User, Clapperboard } from "lucide-react";
 import SearchBar from "./SearchBar";
@@ -12,7 +13,7 @@ export default function Navigation() {
       <div className="w-full px-3 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 gap-2 sm:gap-4">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-red-600 rounded-lg flex items-center justify-center">
               <Clapperboard className="text-white" size={18} />
             </div>
@@ -20,28 +21,29 @@ export default function Navigation() {
             <h1 className="hidden sm:block text-lg sm:text-xl font-bold text-white whitespace-nowrap">
               Movie<span className="text-red-600">Explorer</span>
             </h1>
-          </div>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden lg:flex items-center space-x-8 flex-1 ml-8">
-            <a
-              href="#"
+            <Link
+              to="/"
               className="text-white hover:text-red-500 transition-colors text-sm"
             >
               Home
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              to="/movies"
               className="text-zinc-400 hover:text-red-500 transition-colors text-sm"
             >
               Movies
-            </a>
-            <a
-              href="#"
+            </Link>
+
+            <Link
+              to="/categories"
               className="text-zinc-400 hover:text-red-500 transition-colors text-sm"
             >
               Categories
-            </a>
+            </Link>
           </div>
 
           {/* Search Bar - Responsive */}
@@ -75,27 +77,28 @@ export default function Navigation() {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="lg:hidden pb-4 space-y-2 border-t border-zinc-800 mt-2 pt-4">
-            <div className="px-2 pb-3">
-              <SearchBar isMobile={true} />
-            </div>
-            <a
-              href="#"
+            <Link
+              to="/"
+              onClick={() => setIsOpen(false)}
               className="block px-4 py-2 text-white hover:bg-red-600/10 hover:text-red-500 rounded-lg transition-colors"
             >
               Home
-            </a>
-            <a
-              href="#"
+            </Link>
+            <Link
+              to="/movies"
+              onClick={() => setIsOpen(false)}
               className="block px-4 py-2 text-zinc-400 hover:bg-red-600/10 hover:text-red-500 rounded-lg transition-colors"
             >
               Movies
-            </a>
-            <a
-              href="#"
+            </Link>
+
+            <Link
+              to="/categories"
+              onClick={() => setIsOpen(false)}
               className="block px-4 py-2 text-zinc-400 hover:bg-red-600/10 hover:text-red-500 rounded-lg transition-colors"
             >
               Categories
-            </a>
+            </Link>
           </div>
         )}
       </div>

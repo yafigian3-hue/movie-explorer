@@ -15,13 +15,8 @@ export default function SearchBar({ isMobile = false }) {
     setIsOpen(false);
   };
 
-
   const { movies, search, setSearch, setSearchQuery, searchSuggestions } =
     useSearch();
-  console.log({
-    movies: movies.length,
-    suggestions: searchSuggestions.length,
-  });
 
   return (
     <div className={`relative ${isMobile ? "w-full" : "w-full max-w-xs"}`}>
