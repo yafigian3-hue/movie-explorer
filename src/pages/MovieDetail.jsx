@@ -5,14 +5,17 @@ import { useParams } from "react-router-dom";
 import { Star, Clock, Calendar, ArrowLeft, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import useSearch from "../context/useSearch";
 
 export default function MovieDetail() {
-  console.log("DETAIL");
+ 
   const { id } = useParams();
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const { clearSearch } = useSearch();
 
   const fetchMovie = () => {
     setIsLoading(true); 
@@ -99,7 +102,10 @@ export default function MovieDetail() {
 
         {/* Back Button */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            clearSearch();
+            navigate(-1);
+          }}
           className="absolute top-4 left-4 sm:top-6 sm:left-6 p-2 bg-zinc-900/80 hover:bg-zinc-800 rounded-lg transition-colors z-10 backdrop-blur-sm"
         >
           <ArrowLeft size={20} />

@@ -9,14 +9,15 @@ export default function SearchBar({ isMobile = false }) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleClear = () => {
-    setSearch("");
-    setSearchQuery("");
-    setIsOpen(false);
-  };
-
   const { movies, search, setSearch, setSearchQuery, searchSuggestions } =
     useSearch();
+
+    const { clearSearch } = useSearch();
+
+    const handleClear = () => {
+      clearSearch();
+      setIsOpen(false);
+    };
 
   return (
     <div className={`relative ${isMobile ? "w-full" : "w-full max-w-xs"}`}>
