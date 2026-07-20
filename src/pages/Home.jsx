@@ -1,49 +1,56 @@
-import { useEffect, useState } from "react";
-import useSearch from "../context/useSearch";
 import Navbar from "../components/Navbar";
-import MovieCard from "../components/MovieCard";
+import HeroBanner from "../components/HeroBanner";
+import MovieSection from "../components/MovieSection";
+import useSearch from "../context/useSearch";
 
 export default function Home() {
-  const { movies, searchQuery, fetchMovies, filteredMovies, isLoading, error } =
-    useSearch();
+  const {
+    popularMovies,
+    topRatedMovies,
+    upcomingMovies,
+    nowPlayingMovies,
+    isLoading,
+    error,
+  } = useSearch();
 
-  useEffect(() => {
-    if (movies.length > 0) return;
+  if (isLoading) {
+    return (
+      <>
+        <Navbar />
 
-    fetchMovies();
-  }, [movies]);
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+          <p className="text-zinc-500 animate-pulse">Memuat film...</p>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <Navbar />
+
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+          <p className="text-red-500">{error}</p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Navbar />
 
-      <div className="min-h-screen bg-zinc-950 p-6 text-white">
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <p className="animate-pulse text-zinc-500">
-              Memuat film populer...
-            </p>
-          </div>
-        ) : error !== "" ? (
-          <div className="text-center text-red-500 py-10">
-            <p>{error}</p>
+      <HeroBanner movies={popularMovies} />
 
-            <button
-              onClick={fetchMovies}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-            >
-              Coba Lagi
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                       {" "}
-            {filteredMovies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
-                     {" "}
-          </div>
-        )}
+      <div className="bg-zinc-950 pb-10">
+        <MovieSection title="🔥 Popular" movies={popularMovies} />
+
+        <MovieSection title="⭐ Top Rated" movies={topRatedMovies} />
+
+        <MovieSection title="🎬 Upcoming" movies={upcomingMovies} />
+
+        <MovieSection title="🍿 Now Playing" movies={nowPlayingMovies} />
       </div>
     </>
   );

@@ -6,31 +6,44 @@ export const SearchContext = createContext();
 export default function SearchProvider({ children }) {
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
 
- const {
-   movies,
-   setMovies,
-   isLoading,
-   setIsLoading,
-   error,
-   setError,
-   fetchMovies,
-   filteredMovies,
-   searchSuggestions,
- } = useMovies(search, searchQuery);
+  const {
+    popularMovies,
+    topRatedMovies,
+    upcomingMovies,
+    nowPlayingMovies,
+    isLoading,
+    error,
+    fetchAllMovies,
+  } = useMovies();
 
- const clearSearch = () => {
-   setSearch("");
-   setSearchQuery("");
- };
+  useEffect(() => {
+    fetchAllMovies();
+  }, [fetchAllMovies]);
 
+  const allMovies = [
+    ...popularMovies,
+    ...topRatedMovies,
+    ...upcomingMovies,
+    ...nowPlayingMovies,
+  ].filter(
+    (movie, index, self) => index === self.findIndex((m) => m.id === movie.id),
+  );
+
+  const clearSearch = () => {
+    setSearch("");
+    setSearchQuery("");
+  };
 
   return (
     <SearchContext.Provider
       value={{
-        movies,
-        setMovies,
+        popularMovies,
+        topRatedMovies,
+        upcomingMovies,
+        nowPlayingMovies,
+
+        allMovies,
 
         search,
         setSearch,
@@ -38,20 +51,8 @@ export default function SearchProvider({ children }) {
         searchQuery,
         setSearchQuery,
 
-        searchSuggestions,
-
-        isSearching,
-        setIsSearching,
-
         isLoading,
-        setIsLoading,
-
         error,
-        setError,
-
-        fetchMovies,
-
-        filteredMovies,
 
         clearSearch,
       }}

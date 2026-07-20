@@ -1,17 +1,18 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
-export default function useMovies(search, searchQuery) {
-  const [movies, setMovies] = useState([]);
+export default function useMovies() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchMovies = () => {
-    setIsLoading(true);
-    setError("");
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [topRatedMovies, setTopRatedMovies] = useState([]);
+  const [upcomingMovies, setUpcomingMovies] = useState([]);
+  const [nowPlayingMovies, setNowPlayingMovies] = useState([]);
 
+  const fetchMovies = useCallback((endpoint, setState) => {
     const token = import.meta.env.VITE_TMDB_TOKEN;
 
-    fetch("https://api.themoviedb.org/3/movie/popular", {
+    return fetch(`https://api.themoviedb.org/3/movie/${endpoint}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -24,44 +25,52 @@ export default function useMovies(search, searchQuery) {
         return response.json();
       })
       .then((data) => {
-        const normalizedMovies = (data.results || []).map((movie) => ({
-          id: movie.id,
-          title: movie.title,
-          image: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "https://via.placeholder.com/300x400",
-          rating: movie.vote_average ? movie.vote_average.toFixed(1) : "8.5",
-          description: movie.overview || "No description available",
-          year: movie.release_date ? movie.release_date.slice(0, 4) : "N/A",
-          genre: "Popular Movie",
-        }));
+      const normalizedMovies = data.results.map((movie) => ({
+        ...movie,
 
-        setMovies(normalizedMovies);
-      })
-      .catch((err) => {
-        console.log(err);
-        setError("Gagal memuat film. Silakan coba lagi");
-      })
-      .finally(() => setIsLoading(false));
-  };
+        image: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "https://via.placeholder.com/300x400",
 
-  const filteredMovies = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+        rating: movie.vote_average.toFixed(1),
 
-  const searchSuggestions = movies.filter((movie) =>
-    movie.title.toLowerCase().includes(search.toLowerCase()),
-  );
+        year: movie.release_date?.slice(0, 4) || "N/A",
+
+        genre: endpoint
+          .replace("_", " ")
+          .replace(/\b\w/g, (c) => c.toUpperCase()),
+      }));
+
+        setState(normalizedMovies);
+      });
+  }, []);
+
+  const fetchAllMovies = useCallback(async () => {
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await Promise.all([
+        fetchMovies("popular", setPopularMovies),
+        fetchMovies("top_rated", setTopRatedMovies),
+        fetchMovies("upcoming", setUpcomingMovies),
+        fetchMovies("now_playing", setNowPlayingMovies),
+      ]);
+    } catch (err) {
+      console.error(err);
+      setError("Gagal memuat film.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchMovies]);
 
   return {
-    movies,
-    setMovies,
+    popularMovies,
+    topRatedMovies,
+    upcomingMovies,
+    nowPlayingMovies,
     isLoading,
-    setIsLoading,
     error,
-    setError,
-    fetchMovies,
-    filteredMovies,
-    searchSuggestions,
+    fetchAllMovies,
   };
 }

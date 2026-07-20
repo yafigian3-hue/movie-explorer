@@ -51,7 +51,6 @@ export default function MovieDetail() {
     return (
       <div className="min-h-screen bg-zinc-950 text-white">
         <Navbar />
-        {/* Tambahkan pt-20 di sini */}
         <div className="pt-20 flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
             <div className="w-12 h-12 border-4 border-zinc-700 border-t-red-600 rounded-full animate-spin mx-auto mb-4"></div>
@@ -91,7 +90,6 @@ export default function MovieDetail() {
   return (
     <div className="min-h-screen bg-zinc-950 text-white overflow-hidden">
       <Navbar />
-      {/* Backdrop Hero Section */}
       <div className="relative h-96 sm:h-[500px] lg:h-screen w-full overflow-hidden">
         <img
           src={`https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`}
@@ -100,7 +98,6 @@ export default function MovieDetail() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-zinc-950"></div>
 
-        {/* Back Button */}
         <button
           onClick={() => {
             clearSearch();
@@ -111,7 +108,6 @@ export default function MovieDetail() {
           <ArrowLeft size={20} />
         </button>
 
-        {/* Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
           <button className="p-4 bg-red-600 hover:bg-red-700 rounded-full transition-colors transform scale-75 sm:scale-100">
             <Play size={32} fill="white" className="ml-1" />
@@ -119,17 +115,16 @@ export default function MovieDetail() {
         </div>
       </div>
 
-      {/* Content Section */}
       <div className="relative -mt-24 sm:-mt-32 lg:-mt-40 px-4 sm:px-6 lg:px-8 pb-12">
         <div className="max-w-6xl mx-auto">
-          {/* Title & Rating */}
+
           <div className="mb-6 sm:mb-8">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-balance">
               {movie.title}
             </h1>
 
             <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
-              {/* Rating */}
+
               <div className="flex items-center gap-2 bg-red-600/20 px-3 sm:px-4 py-2 rounded-lg border border-red-600/30">
                 <Star size={18} className="text-yellow-400 fill-yellow-400" />
                 <span className="font-semibold text-sm sm:text-base">
@@ -137,7 +132,6 @@ export default function MovieDetail() {
                 </span>
               </div>
 
-              {/* Year */}
               <div className="flex items-center gap-2 bg-zinc-800/40 px-3 sm:px-4 py-2 rounded-lg border border-zinc-700/30">
                 <Calendar size={18} className="text-zinc-400" />
                 <span className="text-sm sm:text-base text-zinc-300">
@@ -145,7 +139,6 @@ export default function MovieDetail() {
                 </span>
               </div>
 
-              {/* Runtime */}
               {movie.runtime && (
                 <div className="flex items-center gap-2 bg-zinc-800/40 px-3 sm:px-4 py-2 rounded-lg border border-zinc-700/30">
                   <Clock size={18} className="text-zinc-400" />
@@ -157,11 +150,10 @@ export default function MovieDetail() {
             </div>
           </div>
 
-          {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-            {/* Left Column */}
+
             <div className="lg:col-span-2">
-              {/* Genres */}
+
               {movie.genres && movie.genres.length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">
@@ -180,7 +172,6 @@ export default function MovieDetail() {
                 </div>
               )}
 
-              {/* Overview */}
               <div className="mb-8">
                 <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">
                   Synopsis
@@ -190,7 +181,6 @@ export default function MovieDetail() {
                 </p>
               </div>
 
-              {/* Additional Info */}
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 {movie.budget > 0 && (
                   <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
@@ -240,7 +230,6 @@ export default function MovieDetail() {
               </div>
             </div>
 
-            {/* Right Column - Poster */}
             <div className="lg:col-span-1">
               {movie.poster_path && (
                 <div className="sticky top-20">
