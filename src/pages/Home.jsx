@@ -4,14 +4,14 @@ import MovieSection from "../components/MovieSection";
 import useSearch from "../context/useSearch";
 
 export default function Home() {
-  const {
-    popularMovies,
-    topRatedMovies,
-    upcomingMovies,
-    nowPlayingMovies,
-    isLoading,
-    error,
-  } = useSearch();
+const {
+  trendingMovies,
+  topRatedMovies,
+  actionMovies,
+  horrorMovies,
+  isLoading,
+  error,
+} = useSearch();
 
   if (isLoading) {
     return (
@@ -41,16 +41,15 @@ export default function Home() {
     <>
       <Navbar />
 
-      <HeroBanner movies={popularMovies} />
-
+      <HeroBanner movies={trendingMovies} />
       <div className="bg-zinc-950 pb-10">
-        <MovieSection title="🔥 Popular" movies={popularMovies} />
+        <MovieSection title="🔥 Trending" movies={trendingMovies} />
 
         <MovieSection title="⭐ Top Rated" movies={topRatedMovies} />
 
-        <MovieSection title="🎬 Upcoming" movies={upcomingMovies} />
+        <MovieSection title="💥 Action" movies={actionMovies} />
 
-        <MovieSection title="🍿 Now Playing" movies={nowPlayingMovies} />
+        <MovieSection title="👻 Horror" movies={horrorMovies} />
       </div>
     </>
   );

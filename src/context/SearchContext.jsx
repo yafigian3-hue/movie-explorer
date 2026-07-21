@@ -7,28 +7,28 @@ export default function SearchProvider({ children }) {
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const {
-    popularMovies,
-    topRatedMovies,
-    upcomingMovies,
-    nowPlayingMovies,
-    isLoading,
-    error,
-    fetchAllMovies,
-  } = useMovies();
+ const {
+   trendingMovies,
+   topRatedMovies,
+   actionMovies,
+   horrorMovies,
+   isLoading,
+   error,
+   fetchAllMovies,
+ } = useMovies();
 
   useEffect(() => {
     fetchAllMovies();
   }, [fetchAllMovies]);
 
-  const allMovies = [
-    ...popularMovies,
-    ...topRatedMovies,
-    ...upcomingMovies,
-    ...nowPlayingMovies,
-  ].filter(
-    (movie, index, self) => index === self.findIndex((m) => m.id === movie.id),
-  );
+ const allMovies = [
+   ...trendingMovies,
+   ...topRatedMovies,
+   ...actionMovies,
+   ...horrorMovies,
+ ].filter(
+   (movie, index, self) => index === self.findIndex((m) => m.id === movie.id),
+ );
 
   const clearSearch = () => {
     setSearch("");
@@ -38,10 +38,10 @@ export default function SearchProvider({ children }) {
   return (
     <SearchContext.Provider
       value={{
-        popularMovies,
+        trendingMovies,
         topRatedMovies,
-        upcomingMovies,
-        nowPlayingMovies,
+        actionMovies,
+        horrorMovies,
 
         allMovies,
 
