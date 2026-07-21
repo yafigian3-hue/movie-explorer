@@ -6,7 +6,7 @@ import { Menu, X, Bell, User, Clapperboard } from "lucide-react";
 import SearchBar from "./SearchBar";
 import useSearch from "../context/useSearch";
 
-export default function Navigation() {
+export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const { clearSearch } = useSearch();

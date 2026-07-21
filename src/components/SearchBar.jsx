@@ -39,6 +39,14 @@ export default function SearchBar({ isMobile = false }) {
 
             setIsOpen(value.length > 0);
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && search.trim()) {
+              setSearchQuery(search);
+              setIsOpen(false);
+
+              navigate(`/search?q=${encodeURIComponent(search)}`);
+            }
+          }}
           className="w-full rounded-xl border border-zinc-700 bg-zinc-900 py-2.5 pl-4 pr-20 text-zinc-100 placeholder-zinc-500 outline-none transition 
           focus:border-red-500 focus:ring-2 focus:ring-red-500/30 focus:bg-zinc-900/50
           [&::-webkit-search-cancel-button]:hidden"
@@ -58,8 +66,12 @@ export default function SearchBar({ isMobile = false }) {
 
           <button
             onClick={() => {
+              if (!search.trim()) return;
+
               setSearchQuery(search);
               setIsOpen(false);
+
+              navigate(`/search?q=${encodeURIComponent(search)}`);
             }}
             type="button"
             className="text-zinc-400 hover:text-white transition p-1 bg-zinc-700/50 rounded-md hover:bg-red-600"
