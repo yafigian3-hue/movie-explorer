@@ -12,6 +12,10 @@ export default function SearchProvider({ children }) {
    topRatedMovies,
    actionMovies,
    horrorMovies,
+
+   searchResults,
+   searchMovies,
+
    isLoading,
    error,
    fetchAllMovies,
@@ -44,6 +48,9 @@ export default function SearchProvider({ children }) {
         horrorMovies,
 
         allMovies,
+
+        searchResults,
+        searchMovies,
 
         search,
         setSearch,

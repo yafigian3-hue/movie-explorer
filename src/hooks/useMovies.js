@@ -9,6 +9,8 @@ export default function useMovies() {
   const [actionMovies, setActionMovies] = useState([]);
   const [horrorMovies, setHorrorMovies] = useState([]);
 
+  const [searchResults, setSearchResults] = useState([]);
+
   const fetchMovies = useCallback((endpoint, setState) => {
     const token = import.meta.env.VITE_TMDB_TOKEN;
 
@@ -25,21 +27,21 @@ export default function useMovies() {
         return response.json();
       })
       .then((data) => {
-      const normalizedMovies = data.results.map((movie) => ({
-        ...movie,
+        const normalizedMovies = data.results.map((movie) => ({
+          ...movie,
 
-        image: movie.poster_path
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : "https://via.placeholder.com/300x400",
+          image: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : "https://via.placeholder.com/300x400",
 
-        rating: movie.vote_average.toFixed(1),
+          rating: movie.vote_average.toFixed(1),
 
-        year: movie.release_date?.slice(0, 4) || "N/A",
+          year: movie.release_date?.slice(0, 4) || "N/A",
 
-        genre: endpoint
-          .replace("_", " ")
-          .replace(/\b\w/g, (c) => c.toUpperCase()),
-      }));
+          genre: endpoint
+            .replace("_", " ")
+            .replace(/\b\w/g, (c) => c.toUpperCase()),
+        }));
 
         setState(normalizedMovies);
       });
@@ -82,6 +84,50 @@ export default function useMovies() {
       });
   }, []);
 
+  const searchMovies = useCallback(async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const token = import.meta.env.VITE_TMDB_TOKEN;
+
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Gagal mencari film");
+      }
+
+      const data = await response.json();
+
+      const normalizedMovies = data.results.map((movie) => ({
+        ...movie,
+
+        image: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "https://via.placeholder.com/300x400",
+
+        rating: movie.vote_average.toFixed(1),
+
+        year: movie.release_date?.slice(0, 4) || "N/A",
+
+        genre: "Search",
+      }));
+
+      setSearchResults(normalizedMovies);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   const fetchAllMovies = useCallback(async () => {
     setIsLoading(true);
     setError("");
@@ -108,6 +154,10 @@ export default function useMovies() {
     topRatedMovies,
     actionMovies,
     horrorMovies,
+
+    searchResults,
+    searchMovies,
+
     isLoading,
     error,
     fetchAllMovies,
