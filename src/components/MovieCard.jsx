@@ -90,7 +90,7 @@ export default function MovieCard({ movie }) {
               className="text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold transition-all duration-300 hover:gap-2 flex items-center gap-1"
               onClick={() => navigate(`/movie/${movie.id}`)}
             >
-              Watch Now
+              view
               <span className="group-hover:translate-x-1 transition-transform duration-300">
                 →
               </span>

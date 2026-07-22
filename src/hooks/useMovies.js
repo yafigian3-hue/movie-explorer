@@ -10,6 +10,7 @@ export default function useMovies() {
   const [horrorMovies, setHorrorMovies] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
+  const [movieDetail, setMovieDetail] = useState(null);
 
   const fetchMovies = useCallback((endpoint, setState) => {
     const token = import.meta.env.VITE_TMDB_TOKEN;
@@ -149,6 +150,34 @@ export default function useMovies() {
     }
   }, [fetchMovies, fetchDiscoverMovies]);
 
+  const fetchMovieDetail = useCallback(async (id) => {
+    setIsLoading(true);
+    setError("");
+
+    const token = import.meta.env.VITE_TMDB_TOKEN;
+
+    try {
+      const response = await fetch(`https://api.themoviedb.org/3/movie/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Gagal mengambil detail film");
+      }
+
+      const data = await response.json();
+
+      setMovieDetail(data);
+    } catch (err) {
+      console.error(err);
+      setError("Film tidak ditemukan");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   return {
     trendingMovies,
     topRatedMovies,
@@ -157,6 +186,9 @@ export default function useMovies() {
 
     searchResults,
     searchMovies,
+
+    movieDetail,
+    fetchMovieDetail,
 
     isLoading,
     error,

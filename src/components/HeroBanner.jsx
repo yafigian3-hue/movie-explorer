@@ -1,5 +1,6 @@
 import { Play, Info, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useState, useEffect, useRef, useMemo, useLayoutEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AUTOPLAY_MS = 6000;
 
@@ -7,7 +8,7 @@ export default function HeroBanner({
   movies = [],
   limit = 5,
   showProgress = true,
-  variant = "default", 
+  variant = "default",
 }) {
   const heroMovies = useMemo(() => movies.slice(0, limit), [movies, limit]);
 
@@ -66,6 +67,8 @@ export default function HeroBanner({
   if (!movie) return null;
 
   const isCompact = variant === "search";
+
+  const navigate = useNavigate();
 
   return (
     <section
@@ -164,10 +167,16 @@ export default function HeroBanner({
           )}
 
           <div className="flex flex-wrap gap-3">
-            <button className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20">
+            <button
+              onClick={() => navigate(`/movie/${movie.id}`)}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20"
+            >
               <Play size={17} className="fill-white" /> Tonton
             </button>
-            <button className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95">
+            <button
+              onClick={() => navigate(`/movie/${movie.id}`)}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95"
+            >
               <Info size={17} /> Info
             </button>
           </div>

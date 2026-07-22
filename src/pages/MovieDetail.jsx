@@ -6,46 +6,20 @@ import { Star, Clock, Calendar, ArrowLeft, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useSearch from "../context/useSearch";
+import { useCallback } from "react";
 
 export default function MovieDetail() {
- 
   const { id } = useParams();
   const navigate = useNavigate();
-  const [movie, setMovie] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const { clearSearch } = useSearch();
-
-  const fetchMovie = () => {
-    setIsLoading(true); 
-    setError("");
-
-    const token = import.meta.env.VITE_TMDB_TOKEN;
-
-    fetch(`https://api.themoviedb.org/3/movie/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Gagal mengambil data");
-        return response.json();
-      })
-      .then((data) => {
-        setMovie(data);
-        console.log(data);
-      })
-      .catch((err) => {
-        setError("Film tidak ditemukan");
-        console.error(err);
-      })
-      .finally(() => setIsLoading(false));
-  };
+  const { clearSearch, movieDetail, fetchMovieDetail, isLoading, error } =
+    useSearch();
 
   useEffect(() => {
-    fetchMovie();
-  }, [id]);
+    fetchMovieDetail(id);
+  }, [id, fetchMovieDetail]);
+
+  const movie = movieDetail;
 
   if (isLoading) {
     return (
@@ -65,7 +39,7 @@ export default function MovieDetail() {
     return (
       <div className="min-h-screen bg-zinc-950">
         <Navbar />
-       
+
         <div className="pt-20 flex flex-col items-center justify-center min-h-[80vh]">
           <div className="text-center">
             <p className="text-red-500 text-lg font-semibold mb-4">{error}</p>
@@ -117,14 +91,12 @@ export default function MovieDetail() {
 
       <div className="relative -mt-24 sm:-mt-32 lg:-mt-40 px-4 sm:px-6 lg:px-8 pb-12">
         <div className="max-w-6xl mx-auto">
-
           <div className="mb-6 sm:mb-8">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-balance">
               {movie.title}
             </h1>
 
             <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
-
               <div className="flex items-center gap-2 bg-red-600/20 px-3 sm:px-4 py-2 rounded-lg border border-red-600/30">
                 <Star size={18} className="text-yellow-400 fill-yellow-400" />
                 <span className="font-semibold text-sm sm:text-base">
@@ -151,9 +123,7 @@ export default function MovieDetail() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-
             <div className="lg:col-span-2">
-
               {movie.genres && movie.genres.length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">
