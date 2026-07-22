@@ -5,12 +5,18 @@ import { useNavigate } from "react-router-dom";
 const AUTOPLAY_MS = 6000;
 
 export default function HeroBanner({
+  movie = null,
   movies = [],
   limit = 5,
   showProgress = true,
   variant = "default",
 }) {
-  const heroMovies = useMemo(() => movies.slice(0, limit), [movies, limit]);
+  const navigate = useNavigate();
+
+  const heroMovies = useMemo(() => {
+    if (movie) return [movie];
+    return movies.slice(0, limit);
+  }, [movie, movies, limit]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
@@ -22,7 +28,7 @@ export default function HeroBanner({
     setCurrentIndex(0);
   }, [heroMovies.length]);
 
-  const movie = heroMovies[currentIndex];
+  const currentMovie = heroMovies[currentIndex];
 
   useEffect(() => {
     heroMovies.forEach((m) => {
@@ -64,15 +70,21 @@ export default function HeroBanner({
     return () => clearInterval(autoPlayRef.current);
   }, [autoPlay, heroMovies.length]);
 
-  if (!movie) return null;
+  if (!currentMovie) return null;
 
   const isCompact = variant === "search";
+  const isDetail = variant === "detail";
+  const showSlider = !isDetail && heroMovies.length > 1;
 
-  const navigate = useNavigate();
+  // Hero "detail" cuma jadi backdrop atmosferik — konten (judul, rating, tombol)
+  // sepenuhnya dihandle oleh halaman MovieDetail yang overlap di atasnya.
+  const heightClass = isDetail
+    ? "h-[42vh] sm:h-[52vh] lg:h-[62vh]"
+    : "h-[65vh] sm:h-[75vh] lg:h-[85vh]";
 
   return (
     <section
-      className={`relative h-[65vh] sm:h-[75vh] lg:h-[85vh] w-full overflow-hidden bg-zinc-950 group/hero`}
+      className={`relative ${heightClass} w-full overflow-hidden bg-zinc-950 group/hero`}
       onMouseEnter={() => setAutoPlay(false)}
       onMouseLeave={() => setAutoPlay(true)}
     >
@@ -82,14 +94,14 @@ export default function HeroBanner({
       `}</style>
 
       <div
-        key={movie.id ?? currentIndex}
+        key={currentMovie.id ?? currentIndex}
         className="absolute inset-0 transition-opacity duration-500 ease-out"
         style={{ opacity: entered ? 1 : 0 }}
       >
-        {movie.backdrop_path ? (
+        {currentMovie.backdrop_path ? (
           <img
-            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-            alt={movie.title}
+            src={`https://image.tmdb.org/t/p/original${currentMovie.backdrop_path}`}
+            alt={currentMovie.title}
             className="h-full w-full object-cover"
             style={{
               animation: `heroKenBurns ${AUTOPLAY_MS * 1.6}ms ease-out forwards`,
@@ -100,10 +112,15 @@ export default function HeroBanner({
         )}
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent" />
+      {/* Vignette — dibuat lebih pekat di bawah untuk varian detail, supaya konten overlap tetap kontras */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent ${
+          isDetail ? "via-zinc-950/70" : "via-zinc-950/50"
+        }`}
+      />
       <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/10 to-transparent" />
 
-      {heroMovies.length > 1 && (
+      {showSlider && (
         <>
           <button
             onClick={prevMovie}
@@ -122,98 +139,100 @@ export default function HeroBanner({
         </>
       )}
 
-      <div
-        className={`relative z-10 flex h-full flex-col justify-end px-5 sm:px-10 lg:px-16 ${
-          isCompact ? "pb-10 sm:pb-10" : "pb-16 sm:pb-14"
-        }`}
-      >
+      {!isDetail && (
         <div
-          className="max-w-xl lg:max-w-2xl transition-all duration-500 ease-out"
-          style={{
-            opacity: entered ? 1 : 0,
-            transform: entered ? "translateY(0)" : "translateY(20px)",
-          }}
+          className={`relative z-10 flex h-full flex-col justify-end px-5 sm:px-10 lg:px-16 ${
+            isCompact ? "pb-10 sm:pb-10" : "pb-16 sm:pb-14"
+          }`}
         >
-          <div className="mb-3 sm:mb-4 flex flex-wrap items-center gap-2.5">
-            {movie.vote_average > 0 && (
-              <div className="flex items-center gap-1 bg-red-600 px-2.5 py-1 rounded-full">
-                <Star size={12} className="fill-white text-white" />
-                <span className="text-white text-xs font-bold">
-                  {movie.vote_average.toFixed(1)}
-                </span>
-              </div>
-            )}
-            {movie.release_date && (
-              <span className="text-zinc-300 text-xs font-medium bg-white/10 px-2.5 py-1 rounded-full border border-white/10">
-                {new Date(movie.release_date).getFullYear()}
-              </span>
-            )}
-          </div>
-
-          <h1
-            className={`font-bold text-white mb-3 leading-[1.1] tracking-tight drop-shadow-lg ${
-              isCompact
-                ? "text-2xl sm:text-3xl lg:text-5xl"
-                : "text-3xl sm:text-4xl lg:text-6xl"
-            }`}
+          <div
+            className="max-w-xl lg:max-w-2xl transition-all duration-500 ease-out"
+            style={{
+              opacity: entered ? 1 : 0,
+              transform: entered ? "translateY(0)" : "translateY(20px)",
+            }}
           >
-            {movie.title}
-          </h1>
+            <div className="mb-3 sm:mb-4 flex flex-wrap items-center gap-2.5">
+              {currentMovie.vote_average > 0 && (
+                <div className="flex items-center gap-1 bg-red-600 px-2.5 py-1 rounded-full">
+                  <Star size={12} className="fill-white text-white" />
+                  <span className="text-white text-xs font-bold">
+                    {currentMovie.vote_average.toFixed(1)}
+                  </span>
+                </div>
+              )}
+              {currentMovie.release_date && (
+                <span className="text-zinc-300 text-xs font-medium bg-white/10 px-2.5 py-1 rounded-full border border-white/10">
+                  {new Date(currentMovie.release_date).getFullYear()}
+                </span>
+              )}
+            </div>
 
-          {!isCompact && (
-            <p className="hidden sm:block line-clamp-2 lg:line-clamp-3 text-zinc-300 text-sm lg:text-base mb-6 max-w-xl">
-              {movie.overview}
-            </p>
-          )}
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => navigate(`/movie/${movie.id}`)}
-              className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20"
+            <h1
+              className={`font-bold text-white mb-3 leading-[1.1] tracking-tight drop-shadow-lg ${
+                isCompact
+                  ? "text-2xl sm:text-3xl lg:text-5xl"
+                  : "text-3xl sm:text-4xl lg:text-6xl"
+              }`}
             >
-              <Play size={17} className="fill-white" /> Tonton
-            </button>
-            <button
-              onClick={() => navigate(`/movie/${movie.id}`)}
-              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95"
-            >
-              <Info size={17} /> Info
-            </button>
-          </div>
-        </div>
+              {currentMovie.title}
+            </h1>
 
-        {heroMovies.length > 1 && (
-          <div className="mt-6 sm:mt-8 flex gap-2">
-            {heroMovies.map((m, index) => (
+            {!isCompact && (
+              <p className="hidden sm:block line-clamp-2 lg:line-clamp-3 text-zinc-300 text-sm lg:text-base mb-6 max-w-xl">
+                {currentMovie.overview}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-3">
               <button
-                key={m.id ?? index}
-                onClick={() => goTo(index)}
-                aria-label={`Ke slide ${index + 1}`}
-                className={`h-1.5 rounded-full bg-white/20 overflow-hidden transition-all duration-300 ${
-                  index === currentIndex ? "w-8 sm:w-10" : "w-3"
-                }`}
+                onClick={() => navigate(`/movie/${currentMovie.id}`)}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20"
               >
-                {index === currentIndex && showProgress && (
-                  <div
-                    key={`${movie.id}-${autoPlay}`}
-                    className="h-full bg-red-600 rounded-full"
-                    style={
-                      autoPlay
-                        ? {
-                            animation: `heroProgress ${AUTOPLAY_MS}ms linear forwards`,
-                          }
-                        : { width: "100%" }
-                    }
-                  />
-                )}
-                {index === currentIndex && !showProgress && (
-                  <div className="h-full w-full bg-red-600 rounded-full" />
-                )}
+                <Play size={17} className="fill-white" /> Tonton
               </button>
-            ))}
+              <button
+                onClick={() => navigate(`/movie/${currentMovie.id}`)}
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95"
+              >
+                <Info size={17} /> Info
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+
+          {showSlider && (
+            <div className="mt-6 sm:mt-8 flex gap-2">
+              {heroMovies.map((m, index) => (
+                <button
+                  key={m.id ?? index}
+                  onClick={() => goTo(index)}
+                  aria-label={`Ke slide ${index + 1}`}
+                  className={`h-1.5 rounded-full bg-white/20 overflow-hidden transition-all duration-300 ${
+                    index === currentIndex ? "w-8 sm:w-10" : "w-3"
+                  }`}
+                >
+                  {index === currentIndex && showProgress && (
+                    <div
+                      key={`${currentMovie.id}-${autoPlay}`}
+                      className="h-full bg-red-600 rounded-full"
+                      style={
+                        autoPlay
+                          ? {
+                              animation: `heroProgress ${AUTOPLAY_MS}ms linear forwards`,
+                            }
+                          : { width: "100%" }
+                      }
+                    />
+                  )}
+                  {index === currentIndex && !showProgress && (
+                    <div className="h-full w-full bg-red-600 rounded-full" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }

@@ -40,8 +40,7 @@ const {
   return (
     <>
       <Navbar />
-
-      <HeroBanner movies={trendingMovies} />
+      <HeroBanner movies={trendingMovies} />{" "}
       <div className="bg-zinc-950 pb-10">
         <MovieSection title="🔥 Trending" movies={trendingMovies} />
 

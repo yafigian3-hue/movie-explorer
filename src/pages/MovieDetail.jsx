@@ -1,20 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Star, Clock, Calendar, ArrowLeft, Play } from "lucide-react";
+import {
+  Star,
+  Clock,
+  Calendar,
+  ArrowLeft,
+  Play,
+  Clapperboard,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import HeroBanner from "../components/HeroBanner";
 import useSearch from "../context/useSearch";
 import MovieSection from "../components/MovieSection";
-import { useCallback } from "react";
 
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const {
-    clearSearch,
     movieDetail,
     fetchMovieDetail,
     similarMovies,
@@ -37,7 +43,7 @@ export default function MovieDetail() {
         <div className="pt-20 flex items-center justify-center min-h-[80vh]">
           <div className="text-center">
             <div className="w-12 h-12 border-4 border-zinc-700 border-t-red-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-zinc-400 text-lg">Loading...</p>
+            <p className="text-zinc-400 text-lg">Memuat...</p>
           </div>
         </div>
       </div>
@@ -48,13 +54,12 @@ export default function MovieDetail() {
     return (
       <div className="min-h-screen bg-zinc-950">
         <Navbar />
-
         <div className="pt-20 flex flex-col items-center justify-center min-h-[80vh]">
           <div className="text-center">
             <p className="text-red-500 text-lg font-semibold mb-4">{error}</p>
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-500 text-white rounded-full transition-all hover:scale-[1.03] active:scale-95"
             >
               <ArrowLeft size={20} />
               Kembali
@@ -67,82 +72,76 @@ export default function MovieDetail() {
 
   if (!movie) return null;
 
-  const releaseYear = new Date(movie.release_date).getFullYear();
-  const rating = movie.vote_average.toFixed(1);
+  const releaseYear = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : null;
+  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A";
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white overflow-hidden">
+    <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
-      <div className="relative h-96 sm:h-[500px] lg:h-screen w-full overflow-hidden">
-        <img
-          src={`https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`}
-          alt={movie.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-zinc-950"></div>
 
-        <button
-          onClick={() => {
-            clearSearch();
-            navigate(-1);
-          }}
-          className="absolute top-4 left-4 sm:top-6 sm:left-6 p-2 bg-zinc-900/80 hover:bg-zinc-800 rounded-lg transition-colors z-10 backdrop-blur-sm"
-        >
-          <ArrowLeft size={20} />
-        </button>
+      <HeroBanner movie={movie} variant="detail" showProgress={false} />
 
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
-          <button className="p-4 bg-red-600 hover:bg-red-700 rounded-full transition-colors transform scale-75 sm:scale-100">
-            <Play size={32} fill="white" className="ml-1" />
-          </button>
-        </div>
-      </div>
-
-      <div className="relative -mt-24 sm:-mt-32 lg:-mt-40 px-4 sm:px-6 lg:px-8 pb-12">
+      <div className="relative z-10 -mt-12 sm:-mt-20 lg:-mt-24 px-4 sm:px-6 lg:px-8 pb-12">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-6 sm:mb-8">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-balance">
+          <div className="mb-8 sm:mb-10">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-5 leading-tight drop-shadow-lg text-balance">
               {movie.title}
             </h1>
 
-            <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
-              <div className="flex items-center gap-2 bg-red-600/20 px-3 sm:px-4 py-2 rounded-lg border border-red-600/30">
-                <Star size={18} className="text-yellow-400 fill-yellow-400" />
-                <span className="font-semibold text-sm sm:text-base">
-                  {rating}/10
-                </span>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div className="flex gap-3">
+                <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03] shadow-lg shadow-red-600/20">
+                  <Play size={18} className="fill-white" />
+                  Tonton
+                </button>
+
+                <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-md text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03]">
+                  <Clapperboard size={18} />
+                  Trailer
+                </button>
               </div>
 
-              <div className="flex items-center gap-2 bg-zinc-800/40 px-3 sm:px-4 py-2 rounded-lg border border-zinc-700/30">
-                <Calendar size={18} className="text-zinc-400" />
-                <span className="text-sm sm:text-base text-zinc-300">
-                  {releaseYear}
-                </span>
-              </div>
-
-              {movie.runtime && (
-                <div className="flex items-center gap-2 bg-zinc-800/40 px-3 sm:px-4 py-2 rounded-lg border border-zinc-700/30">
-                  <Clock size={18} className="text-zinc-400" />
-                  <span className="text-sm sm:text-base text-zinc-300">
-                    {movie.runtime} min
-                  </span>
+              <div className="hidden lg:flex flex-wrap gap-3">
+                <div className="flex items-center gap-2 bg-red-600/20 px-4 py-2 rounded-full border border-red-600/30">
+                  <Star size={18} className="text-yellow-400 fill-yellow-400" />
+                  <span className="font-semibold text-base">{rating}/10</span>
                 </div>
-              )}
+
+                {releaseYear && (
+                  <div className="flex items-center gap-2 bg-zinc-900/80 backdrop-blur-md px-4 py-2 rounded-full border border-zinc-700/50">
+                    <Calendar size={18} className="text-zinc-400" />
+                    <span className="text-base text-zinc-300">
+                      {releaseYear}
+                    </span>
+                  </div>
+                )}
+
+                {movie.runtime > 0 && (
+                  <div className="flex items-center gap-2 bg-zinc-900/80 backdrop-blur-md px-4 py-2 rounded-full border border-zinc-700/50">
+                    <Clock size={18} className="text-zinc-400" />
+                    <span className="text-base text-zinc-300">
+                      {movie.runtime} min
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
             <div className="lg:col-span-2">
-              {movie.genres && movie.genres.length > 0 && (
+              {movie.genres?.length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">
-                    Genres
+                    Genre
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {movie.genres.map((genre) => (
                       <span
                         key={genre.id}
-                        className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-full text-sm transition-colors"
+                        className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-full text-sm transition-colors"
                       >
                         {genre.name}
                       </span>
@@ -153,7 +152,7 @@ export default function MovieDetail() {
 
               <div className="mb-8">
                 <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-4">
-                  Synopsis
+                  Sinopsis
                 </h3>
                 <p className="text-base sm:text-lg text-zinc-300 leading-relaxed text-balance">
                   {movie.overview}
@@ -162,50 +161,48 @@ export default function MovieDetail() {
 
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 {movie.budget > 0 && (
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
                       Budget
                     </p>
                     <p className="text-lg sm:text-xl font-semibold">
-                      ${(movie.budget / 1000000).toFixed(1)}M
+                      ${(movie.budget / 1_000_000).toFixed(1)}M
                     </p>
                   </div>
                 )}
 
                 {movie.revenue > 0 && (
-                  <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
                     <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
                       Revenue
                     </p>
                     <p className="text-lg sm:text-xl font-semibold">
-                      ${(movie.revenue / 1000000).toFixed(1)}M
+                      ${(movie.revenue / 1_000_000).toFixed(1)}M
                     </p>
                   </div>
                 )}
 
-                {movie.production_companies &&
-                  movie.production_companies.length > 0 && (
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                      <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-                        Production
-                      </p>
-                      <p className="text-sm sm:text-base font-medium">
-                        {movie.production_companies[0].name}
-                      </p>
-                    </div>
-                  )}
+                {movie.production_companies?.length > 0 && (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                      Produksi
+                    </p>
+                    <p className="text-sm sm:text-base font-medium">
+                      {movie.production_companies[0].name}
+                    </p>
+                  </div>
+                )}
 
-                {movie.spoken_languages &&
-                  movie.spoken_languages.length > 0 && (
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-4">
-                      <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-                        Language
-                      </p>
-                      <p className="text-sm sm:text-base font-medium">
-                        {movie.spoken_languages[0].english_name}
-                      </p>
-                    </div>
-                  )}
+                {movie.spoken_languages?.length > 0 && (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
+                      Bahasa
+                    </p>
+                    <p className="text-sm sm:text-base font-medium">
+                      {movie.spoken_languages[0].english_name}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -217,9 +214,9 @@ export default function MovieDetail() {
                     alt={movie.title}
                     className="w-full rounded-xl shadow-2xl border border-zinc-800"
                   />
-                  <button className="w-full mt-4 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                  <button className="w-full mt-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-600/20">
                     <Play size={20} fill="white" />
-                    Watch Now
+                    Tonton Sekarang
                   </button>
                 </div>
               )}
@@ -227,7 +224,8 @@ export default function MovieDetail() {
           </div>
         </div>
       </div>
-      <MovieSection title="Similar Movies" movies={similarMovies} />
+
+      <MovieSection title="Film Serupa" movies={similarMovies} />
     </div>
   );
 }
