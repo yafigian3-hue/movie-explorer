@@ -3,6 +3,7 @@
 import { Star, Play } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GENRES } from "../utils/genres";
 
 export default function MovieCard({ movie }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -16,6 +17,13 @@ export default function MovieCard({ movie }) {
   const genre = movie.genre || "Popular Movie";
 
   const navigate = useNavigate();
+
+  const genres =
+    movie.genre_ids
+      ?.slice(0, 2)
+      .map((id) => GENRES[id])
+      .filter(Boolean)
+      .join(", ") || "Unknown";
 
   return (
     <div
@@ -66,8 +74,8 @@ export default function MovieCard({ movie }) {
             </h3>
 
             {/* Genre */}
-            {genre && (
-              <p className="text-zinc-400 text-xs sm:text-sm mt-1">{genre}</p>
+            {genres && (
+              <p className="text-zinc-400 text-xs sm:text-sm mt-1">{genres}</p>
             )}
           </div>
 

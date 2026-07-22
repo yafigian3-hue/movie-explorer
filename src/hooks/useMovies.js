@@ -11,6 +11,7 @@ export default function useMovies() {
 
   const [searchResults, setSearchResults] = useState([]);
   const [movieDetail, setMovieDetail] = useState(null);
+  const [similarMovies, setSimilarMovies] = useState([]);
 
   const fetchMovies = useCallback((endpoint, setState) => {
     const token = import.meta.env.VITE_TMDB_TOKEN;
@@ -39,9 +40,7 @@ export default function useMovies() {
 
           year: movie.release_date?.slice(0, 4) || "N/A",
 
-          genre: endpoint
-            .replace("_", " ")
-            .replace(/\b\w/g, (c) => c.toUpperCase()),
+          
         }));
 
         setState(normalizedMovies);
@@ -78,7 +77,7 @@ export default function useMovies() {
 
           year: movie.release_date?.slice(0, 4) || "N/A",
 
-          genre: "Discover",
+         
         }));
 
         setState(normalizedMovies);
@@ -120,7 +119,6 @@ export default function useMovies() {
 
         year: movie.release_date?.slice(0, 4) || "N/A",
 
-        genre: "Search",
       }));
 
       setSearchResults(normalizedMovies);
@@ -178,6 +176,44 @@ export default function useMovies() {
     }
   }, []);
 
+  const fetchSimilarMovies = useCallback(async (id) => {
+    const token = import.meta.env.VITE_TMDB_TOKEN;
+
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/${id}/similar`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Gagal mengambil similar movies");
+      }
+
+      const data = await response.json();
+
+      const normalizedMovies = data.results.map((movie) => ({
+        ...movie,
+
+        image: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "https://via.placeholder.com/300x400",
+
+        rating: movie.vote_average.toFixed(1),
+
+        year: movie.release_date?.slice(0, 4) || "N/A",
+
+      }));
+
+      setSimilarMovies(normalizedMovies);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   return {
     trendingMovies,
     topRatedMovies,
@@ -189,6 +225,9 @@ export default function useMovies() {
 
     movieDetail,
     fetchMovieDetail,
+
+    similarMovies,
+    fetchSimilarMovies,
 
     isLoading,
     error,

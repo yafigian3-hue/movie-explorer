@@ -19,6 +19,9 @@ export default function SearchProvider({ children }) {
     movieDetail,
     fetchMovieDetail,
 
+    similarMovies,
+    fetchSimilarMovies,
+
     isLoading,
     error,
     fetchAllMovies,
@@ -41,6 +44,7 @@ export default function SearchProvider({ children }) {
     setSearch("");
     setSearchQuery("");
   };
+    
 
   return (
     <SearchContext.Provider
@@ -63,6 +67,9 @@ export default function SearchProvider({ children }) {
 
         movieDetail,
         fetchMovieDetail,
+
+        similarMovies,
+        fetchSimilarMovies,
 
         isLoading,
         error,

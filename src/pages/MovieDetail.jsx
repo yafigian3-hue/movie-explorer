@@ -6,18 +6,27 @@ import { Star, Clock, Calendar, ArrowLeft, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useSearch from "../context/useSearch";
+import MovieSection from "../components/MovieSection";
 import { useCallback } from "react";
 
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { clearSearch, movieDetail, fetchMovieDetail, isLoading, error } =
-    useSearch();
+  const {
+    clearSearch,
+    movieDetail,
+    fetchMovieDetail,
+    similarMovies,
+    fetchSimilarMovies,
+    isLoading,
+    error,
+  } = useSearch();
 
   useEffect(() => {
     fetchMovieDetail(id);
-  }, [id, fetchMovieDetail]);
+    fetchSimilarMovies(id);
+  }, [id, fetchMovieDetail, fetchSimilarMovies]);
 
   const movie = movieDetail;
 
@@ -218,6 +227,7 @@ export default function MovieDetail() {
           </div>
         </div>
       </div>
+      <MovieSection title="Similar Movies" movies={similarMovies} />
     </div>
   );
 }
