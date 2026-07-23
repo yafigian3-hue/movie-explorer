@@ -63,7 +63,6 @@ export default function HeroBanner({
     return () => cancelAnimationFrame(rafRef.current);
   }, [entered]);
 
-  // Crossfade khusus saat berpindah antara gambar backdrop <-> trailer
   useLayoutEffect(() => {
     setTrailerEntered(false);
     if (!isPlayingTrailer) setVideoReady(false);
@@ -107,7 +106,9 @@ export default function HeroBanner({
 
   const heightClass = isDetail
     ? "h-[42vh] sm:h-[52vh] lg:h-[62vh]"
-    : "h-[65vh] sm:h-[75vh] lg:h-[85vh]";
+    : isCompact
+      ? "h-[65vh] sm:h-[75vh] lg:h-[85vh]"
+      : "h-screen"; 
 
   return (
     <section
@@ -120,7 +121,6 @@ export default function HeroBanner({
         @keyframes heroProgress { from { width: 0%; } to { width: 100%; } }
       `}</style>
 
-      {/* Backdrop gambar — selalu di lapisan bawah, disembunyikan lewat opacity saat trailer aktif */}
       <div
         key={currentMovie.id ?? currentIndex}
         className="absolute inset-0 transition-opacity duration-500 ease-out"
@@ -148,7 +148,6 @@ export default function HeroBanner({
         )}
       </div>
 
-      {/* Lapisan trailer — fade in di atas backdrop */}
       {showingTrailer && (
         <div
           className="absolute inset-0 bg-black transition-opacity duration-500 ease-out"

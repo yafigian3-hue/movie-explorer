@@ -34,7 +34,7 @@ export default function MovieCard({ movie }) {
       {/* Card Container */}
       <div
         className="relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-600/20 h-full cursor-pointer flex flex-col"
-        onClick={() => navigate(`/movie/${movie.id}`)}
+        onClick={() => navigate(`/movie/${currentMovie.id}`)}
       >
         {/* Image Container */}
         <div className="relative w-full aspect-video overflow-hidden bg-zinc-950">
@@ -96,7 +96,7 @@ export default function MovieCard({ movie }) {
             {/* Watch Button */}
             <button
               className="text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold transition-all duration-300 hover:gap-2 flex items-center gap-1"
-              onClick={() => navigate(`/movie/${movie.id}`)}
+              onClick={() => navigate(`/movie/${currentMovie.id}`)}
             >
               view
               <span className="group-hover:translate-x-1 transition-transform duration-300">
