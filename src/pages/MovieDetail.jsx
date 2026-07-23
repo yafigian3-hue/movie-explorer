@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Star,
   Clock,
@@ -10,7 +10,6 @@ import {
   Play,
   Clapperboard,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import HeroBanner from "../components/HeroBanner";
 import useSearch from "../context/useSearch";
@@ -25,6 +24,8 @@ export default function MovieDetail() {
     fetchMovieDetail,
     similarMovies,
     fetchSimilarMovies,
+    movieTrailer,
+    fetchMovieTrailer,
     isLoading,
     error,
   } = useSearch();
@@ -32,9 +33,15 @@ export default function MovieDetail() {
   useEffect(() => {
     fetchMovieDetail(id);
     fetchSimilarMovies(id);
-  }, [id, fetchMovieDetail, fetchSimilarMovies]);
+    fetchMovieTrailer(id);
+  }, [id, fetchMovieDetail, fetchSimilarMovies, fetchMovieTrailer]);
 
   const movie = movieDetail;
+  const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
+
+  useEffect(() => {
+    setIsPlayingTrailer(false);
+  }, [id]);
 
   if (isLoading) {
     return (
@@ -76,12 +83,20 @@ export default function MovieDetail() {
     ? new Date(movie.release_date).getFullYear()
     : null;
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A";
+  const hasTrailer = Boolean(movieTrailer?.key);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
 
-      <HeroBanner movie={movie} variant="detail" showProgress={false} />
+      <HeroBanner
+        movie={movie}
+        movieTrailer={movieTrailer}
+        variant="detail"
+        showProgress={false}
+        isPlayingTrailer={isPlayingTrailer}
+        setIsPlayingTrailer={setIsPlayingTrailer}
+      />
 
       <div className="relative z-10 -mt-12 sm:-mt-20 lg:-mt-24 px-4 sm:px-6 lg:px-8 pb-12">
         <div className="max-w-6xl mx-auto">
@@ -97,7 +112,18 @@ export default function MovieDetail() {
                   Tonton
                 </button>
 
-                <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/15 backdrop-blur-md text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03]">
+                <button
+                  onClick={() => hasTrailer && setIsPlayingTrailer(true)}
+                  disabled={!hasTrailer}
+                  title={
+                    hasTrailer ? "Putar trailer" : "Trailer tidak tersedia"
+                  }
+                  className={`flex-1 lg:flex-none flex items-center justify-center gap-2 border text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 ${
+                    hasTrailer
+                      ? "bg-white/10 hover:bg-white/20 border-white/15 backdrop-blur-md lg:hover:scale-[1.03]"
+                      : "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed"
+                  }`}
+                >
                   <Clapperboard size={18} />
                   Trailer
                 </button>

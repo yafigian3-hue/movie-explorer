@@ -1,4 +1,12 @@
-import { Play, Info, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import {
+  Play,
+  Info,
+  ChevronLeft,
+  ChevronRight,
+  Star,
+  X,
+  Loader2,
+} from "lucide-react";
 import { useState, useEffect, useRef, useMemo, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -7,9 +15,12 @@ const AUTOPLAY_MS = 6000;
 export default function HeroBanner({
   movie = null,
   movies = [],
+  movieTrailer = null,
   limit = 5,
   showProgress = true,
   variant = "default",
+  isPlayingTrailer = false,
+  setIsPlayingTrailer,
 }) {
   const navigate = useNavigate();
 
@@ -21,8 +32,11 @@ export default function HeroBanner({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
   const [entered, setEntered] = useState(false);
+  const [trailerEntered, setTrailerEntered] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const autoPlayRef = useRef(null);
   const rafRef = useRef(null);
+  const trailerRafRef = useRef(null);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -49,6 +63,20 @@ export default function HeroBanner({
     return () => cancelAnimationFrame(rafRef.current);
   }, [entered]);
 
+  // Crossfade khusus saat berpindah antara gambar backdrop <-> trailer
+  useLayoutEffect(() => {
+    setTrailerEntered(false);
+    if (!isPlayingTrailer) setVideoReady(false);
+  }, [isPlayingTrailer]);
+
+  useEffect(() => {
+    if (trailerEntered) return;
+    trailerRafRef.current = requestAnimationFrame(() =>
+      setTrailerEntered(true),
+    );
+    return () => cancelAnimationFrame(trailerRafRef.current);
+  }, [trailerEntered]);
+
   const goTo = (index) => {
     setAutoPlay(false);
     setCurrentIndex(index);
@@ -61,23 +89,22 @@ export default function HeroBanner({
     goTo(currentIndex === 0 ? heroMovies.length - 1 : currentIndex - 1);
 
   useEffect(() => {
-    if (!autoPlay || heroMovies.length <= 1) return;
+    if (!autoPlay || heroMovies.length <= 1 || isPlayingTrailer) return;
     autoPlayRef.current = setInterval(() => {
       setCurrentIndex((prev) =>
         prev === heroMovies.length - 1 ? 0 : prev + 1,
       );
     }, AUTOPLAY_MS);
     return () => clearInterval(autoPlayRef.current);
-  }, [autoPlay, heroMovies.length]);
+  }, [autoPlay, heroMovies.length, isPlayingTrailer]);
 
   if (!currentMovie) return null;
 
   const isCompact = variant === "search";
   const isDetail = variant === "detail";
   const showSlider = !isDetail && heroMovies.length > 1;
+  const showingTrailer = isPlayingTrailer && Boolean(movieTrailer);
 
-  // Hero "detail" cuma jadi backdrop atmosferik — konten (judul, rating, tombol)
-  // sepenuhnya dihandle oleh halaman MovieDetail yang overlap di atasnya.
   const heightClass = isDetail
     ? "h-[42vh] sm:h-[52vh] lg:h-[62vh]"
     : "h-[65vh] sm:h-[75vh] lg:h-[85vh]";
@@ -93,34 +120,67 @@ export default function HeroBanner({
         @keyframes heroProgress { from { width: 0%; } to { width: 100%; } }
       `}</style>
 
+      {/* Backdrop gambar — selalu di lapisan bawah, disembunyikan lewat opacity saat trailer aktif */}
       <div
         key={currentMovie.id ?? currentIndex}
         className="absolute inset-0 transition-opacity duration-500 ease-out"
-        style={{ opacity: entered ? 1 : 0 }}
+        style={{ opacity: showingTrailer ? 0 : entered ? 1 : 0 }}
       >
         {currentMovie.backdrop_path ? (
-          <img
-            src={`https://image.tmdb.org/t/p/original${currentMovie.backdrop_path}`}
-            alt={currentMovie.title}
-            className="h-full w-full object-cover"
-            style={{
-              animation: `heroKenBurns ${AUTOPLAY_MS * 1.6}ms ease-out forwards`,
-            }}
-          />
+          <>
+            <img
+              src={`https://image.tmdb.org/t/p/original${currentMovie.backdrop_path}`}
+              alt={currentMovie.title}
+              className="h-full w-full object-cover"
+              style={{
+                animation: `heroKenBurns ${AUTOPLAY_MS * 1.6}ms ease-out forwards`,
+              }}
+            />
+            <div
+              className={`absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent ${
+                isDetail ? "via-zinc-950/70" : "via-zinc-950/50"
+              }`}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/10 to-transparent" />
+          </>
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-zinc-800 to-zinc-950" />
         )}
       </div>
 
-      {/* Vignette — dibuat lebih pekat di bawah untuk varian detail, supaya konten overlap tetap kontras */}
-      <div
-        className={`absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent ${
-          isDetail ? "via-zinc-950/70" : "via-zinc-950/50"
-        }`}
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/10 to-transparent" />
+      {/* Lapisan trailer — fade in di atas backdrop */}
+      {showingTrailer && (
+        <div
+          className="absolute inset-0 bg-black transition-opacity duration-500 ease-out"
+          style={{ opacity: trailerEntered ? 1 : 0 }}
+        >
+          {!videoReady && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 size={28} className="text-white/70 animate-spin" />
+            </div>
+          )}
 
-      {showSlider && (
+          <iframe
+            key={movieTrailer.key}
+            className="w-full h-full"
+            src={`https://www.youtube.com/embed/${movieTrailer.key}?autoplay=1&controls=1&rel=0`}
+            title={movieTrailer.name}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            onLoad={() => setVideoReady(true)}
+          />
+
+          <button
+            onClick={() => setIsPlayingTrailer?.(false)}
+            aria-label="Tutup Trailer"
+            className="absolute top-5 left-5 sm:top-6 sm:left-6 z-50 bg-black/70 backdrop-blur-md hover:bg-red-600 active:scale-95 transition-all rounded-full p-3"
+          >
+            <X size={20} />
+          </button>
+        </div>
+      )}
+
+      {showSlider && !isPlayingTrailer && (
         <>
           <button
             onClick={prevMovie}
