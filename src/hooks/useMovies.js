@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { PLACEHOLDER_IMAGE } from "../utils/placeholder";
 
 export default function useMovies() {
   const [isLoading, setIsLoading] = useState(false);
@@ -10,8 +11,12 @@ export default function useMovies() {
   const [horrorMovies, setHorrorMovies] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
+  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [movieDetail, setMovieDetail] = useState(null);
   const [similarMovies, setSimilarMovies] = useState([]);
+
+  const [cast, setCast] = useState([]);  
 
   const fetchMovies = useCallback((endpoint, setState) => {
     const token = import.meta.env.VITE_TMDB_TOKEN;
@@ -34,13 +39,11 @@ export default function useMovies() {
 
           image: movie.poster_path
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "https://via.placeholder.com/300x400",
+            : PLACEHOLDER_IMAGE,
 
           rating: movie.vote_average.toFixed(1),
 
           year: movie.release_date?.slice(0, 4) || "N/A",
-
-          
         }));
 
         setState(normalizedMovies);
@@ -71,13 +74,11 @@ export default function useMovies() {
 
           image: movie.poster_path
             ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "https://via.placeholder.com/300x400",
+            : PLACEHOLDER_IMAGE,
 
           rating: movie.vote_average.toFixed(1),
 
           year: movie.release_date?.slice(0, 4) || "N/A",
-
-         
         }));
 
         setState(normalizedMovies);
@@ -113,12 +114,10 @@ export default function useMovies() {
 
         image: movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : "https://via.placeholder.com/300x400",
-
+          : PLACEHOLDER_IMAGE,
         rating: movie.vote_average.toFixed(1),
 
         year: movie.release_date?.slice(0, 4) || "N/A",
-
       }));
 
       setSearchResults(normalizedMovies);
@@ -200,12 +199,11 @@ export default function useMovies() {
 
         image: movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : "https://via.placeholder.com/300x400",
+          : PLACEHOLDER_IMAGE,
 
         rating: movie.vote_average.toFixed(1),
 
         year: movie.release_date?.slice(0, 4) || "N/A",
-
       }));
 
       setSimilarMovies(normalizedMovies);
@@ -214,7 +212,55 @@ export default function useMovies() {
     }
   }, []);
 
+  const fetchMovieCast = useCallback(async (id) => {
+    const token = import.meta.env.VITE_TMDB_TOKEN;
+
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/${id}/credits`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Gagal mengambil data cast");
+      }
+
+      const data = await response.json();
+
+      // Ambil 10 pemeran utama saja
+      const topCast = data.cast.slice(0, 10).map((person) => ({
+        id: person.id,
+        name: person.name,
+        character: person.character,
+        profile: person.profile_path
+          ? `https://image.tmdb.org/t/p/w185${person.profile_path}`
+          : PLACEHOLDER_IMAGE,
+      }));
+
+      setCast(topCast);
+    } catch (err) {
+      console.error(err);
+      setCast([]);
+    }
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setSearch("");
+    setSearchQuery("");
+    setSearchResults([]);
+  }, []);
+
   return {
+    search,
+    setSearch,
+
+    searchQuery,
+    setSearchQuery,
+
     trendingMovies,
     topRatedMovies,
     actionMovies,
@@ -222,6 +268,7 @@ export default function useMovies() {
 
     searchResults,
     searchMovies,
+    clearSearch,
 
     movieDetail,
     fetchMovieDetail,
@@ -232,5 +279,8 @@ export default function useMovies() {
     isLoading,
     error,
     fetchAllMovies,
+
+    cast,
+    fetchMovieCast,
   };
 }

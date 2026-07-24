@@ -5,8 +5,7 @@ import { useCallback } from "react";
 export const SearchContext = createContext();
 
 export default function SearchProvider({ children }) {
-  const [search, setSearch] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+ 
 
   const [movieTrailer, setMovieTrailer] = useState(null);
 
@@ -19,6 +18,11 @@ export default function SearchProvider({ children }) {
     searchResults,
     searchMovies,
 
+    search,
+    setSearch,
+    searchQuery,
+    setSearchQuery,
+
     movieDetail,
     fetchMovieDetail,
 
@@ -28,7 +32,12 @@ export default function SearchProvider({ children }) {
     isLoading,
     error,
     fetchAllMovies,
+
+    cast,
+    fetchMovieCast,
   } = useMovies();
+
+  
 
   useEffect(() => {
     fetchAllMovies();
@@ -104,6 +113,9 @@ export default function SearchProvider({ children }) {
         error,
 
         clearSearch,
+
+        cast,
+        fetchMovieCast,
       }}
     >
       {children}

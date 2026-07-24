@@ -14,6 +14,7 @@ import Navbar from "../components/Navbar";
 import HeroBanner from "../components/HeroBanner";
 import useSearch from "../context/useSearch";
 import MovieSection from "../components/MovieSection";
+import CastList from "../components/CastList";
 
 export default function MovieDetail() {
   const { id } = useParams();
@@ -26,6 +27,8 @@ export default function MovieDetail() {
     fetchSimilarMovies,
     movieTrailer,
     fetchMovieTrailer,
+    cast,
+    fetchMovieCast,
     isLoading,
     error,
   } = useSearch();
@@ -34,7 +37,14 @@ export default function MovieDetail() {
     fetchMovieDetail(id);
     fetchSimilarMovies(id);
     fetchMovieTrailer(id);
-  }, [id, fetchMovieDetail, fetchSimilarMovies, fetchMovieTrailer]);
+    fetchMovieCast(id);
+  }, [
+    id,
+    fetchMovieDetail,
+    fetchSimilarMovies,
+    fetchMovieTrailer,
+    fetchMovieCast,
+  ]);
 
   const movie = movieDetail;
   const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
@@ -184,6 +194,8 @@ export default function MovieDetail() {
                   {movie.overview}
                 </p>
               </div>
+
+              <CastList cast={cast} />
 
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 {movie.budget > 0 && (

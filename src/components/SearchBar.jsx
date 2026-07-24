@@ -2,7 +2,7 @@
 
 import useSearch from "../context/useSearch";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
 
 export default function SearchBar({ isMobile = false }) {
@@ -13,12 +13,21 @@ export default function SearchBar({ isMobile = false }) {
     search,
     setSearch,
     setSearchQuery,
-
     searchResults,
     searchMovies,
-
     clearSearch,
   } = useSearch();
+
+  // Debounce: baru fetch 400ms setelah user berhenti mengetik
+  useEffect(() => {
+    if (!search.trim()) return;
+
+    const timer = setTimeout(() => {
+      searchMovies(search);
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [search, searchMovies]);
 
   const handleClear = () => {
     clearSearch();
@@ -33,17 +42,13 @@ export default function SearchBar({ isMobile = false }) {
           value={search}
           onChange={(e) => {
             const value = e.target.value;
-
             setSearch(value);
-            searchMovies(value);
-
             setIsOpen(value.length > 0);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && search.trim()) {
               setSearchQuery(search);
               setIsOpen(false);
-
               navigate(`/search?q=${encodeURIComponent(search)}`);
             }
           }}
@@ -67,10 +72,8 @@ export default function SearchBar({ isMobile = false }) {
           <button
             onClick={() => {
               if (!search.trim()) return;
-
               setSearchQuery(search);
               setIsOpen(false);
-
               navigate(`/search?q=${encodeURIComponent(search)}`);
             }}
             type="button"

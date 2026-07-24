@@ -5,14 +5,32 @@ export default function useSearch() {
   const context = useContext(SearchContext);
 
   const {
-    allMovies,
+    trendingMovies,
+    topRatedMovies,
+    actionMovies,
+    horrorMovies,
+
     search,
     setSearch,
     searchQuery,
     setSearchQuery,
+
+    searchResults,
+    searchMovies,
+
     clearSearch,
+
     ...rest
   } = context;
+
+  const allMovies = [
+    ...trendingMovies,
+    ...topRatedMovies,
+    ...actionMovies,
+    ...horrorMovies,
+  ].filter(
+    (movie, index, self) => index === self.findIndex((m) => m.id === movie.id),
+  );
 
   const searchSuggestions = allMovies.filter((movie) =>
     movie.title.toLowerCase().includes(search.toLowerCase()),
@@ -22,21 +40,28 @@ export default function useSearch() {
     movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  return {
-    ...rest,
+ return {
+   ...rest,
 
-    allMovies,
+   trendingMovies,
+   topRatedMovies,
+   actionMovies,
+   horrorMovies,
 
-    search,
-    setSearch,
+   allMovies,
 
-    searchQuery,
-    setSearchQuery,
+   search,
+   setSearch,
 
-    searchSuggestions,
+   searchQuery,
+   setSearchQuery,
 
-    filteredMovies,
+   searchResults,
+   searchMovies,
 
-    clearSearch,
-  };
+   searchSuggestions,
+   filteredMovies,
+
+   clearSearch,
+ };
 }
