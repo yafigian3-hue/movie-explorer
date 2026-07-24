@@ -50,11 +50,11 @@ export default function Navbar() {
       }`}
     >
       <div className="w-full px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16 gap-3 sm:gap-4">
+        <div className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[1fr_auto_1fr] items-center h-16 gap-3 sm:gap-4">
           <NavLink
             to="/"
             onClick={clearSearch}
-            className="flex items-center gap-2 shrink-0"
+            className="flex items-center gap-2 shrink-0 justify-self-start"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-red-600 rounded-lg flex items-center justify-center transition-transform hover:scale-105">
               <Clapperboard className="text-white" size={18} />
@@ -64,7 +64,7 @@ export default function Navbar() {
             </h1>
           </NavLink>
 
-          <div className="hidden lg:flex items-center gap-7 shrink-0 ml-8">
+          <div className="hidden lg:flex items-center gap-8 justify-self-center">
             <NavLink to="/" onClick={clearSearch} className={navLinkClass}>
               Home
             </NavLink>
@@ -84,12 +84,8 @@ export default function Navbar() {
             </NavLink>
           </div>
 
-          {/* Spacer — cuma aktif di desktop, memisahkan zona kiri & kanan secara eksplisit */}
-          <div className="hidden lg:block flex-1" />
-
-          {/* Zona kanan: Search + Bell + Hamburger, selalu menempel jadi satu grup */}
-          <div className="flex-1 lg:flex-none flex items-center justify-end gap-2 sm:gap-3">
-            <div className="flex-1 min-w-0 max-w-[160px] xs:max-w-[200px] sm:max-w-xs lg:flex-none lg:w-56 xl:w-64">
+          <div className="flex items-center justify-end gap-2 sm:gap-3 justify-self-end">
+            <div className="w-full min-w-0 max-w-[160px] xs:max-w-[200px] sm:max-w-xs lg:w-56 xl:w-64">
               <SearchBar isMobile={true} />
             </div>
 
