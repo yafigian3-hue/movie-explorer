@@ -83,22 +83,23 @@ export default function SearchResult() {
             </div>
           ) : results.length > 0 ? (
             <>
-              <div className="mb-8 flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="text-zinc-400 text-sm font-medium mr-1">
+              <div className="mb-8 flex items-center gap-1.5 sm:gap-3">
+                <span className="hidden sm:inline text-zinc-400 text-sm font-medium mr-1 shrink-0">
                   Urutkan:
                 </span>
+
                 {SORT_OPTIONS.map(({ value, label, icon: Icon }) => (
                   <button
                     key={value}
                     onClick={() => setSortBy(value)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    className={`flex-1 sm:flex-none min-w-0 flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-4 py-2 rounded-full text-[11px] sm:text-sm font-medium transition-all duration-300 truncate ${
                       sortBy === value
                         ? "bg-red-600 text-white shadow-md shadow-red-600/30"
                         : "bg-zinc-900 text-zinc-300 hover:bg-zinc-800 border border-zinc-800"
                     }`}
                   >
-                    <Icon size={14} />
-                    {label}
+                    <Icon size={13} className="shrink-0" />
+                    <span className="truncate">{label}</span>
                   </button>
                 ))}
               </div>
