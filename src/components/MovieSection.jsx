@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom";
 import MovieCard from "./MovieCard";
 
-export default function MovieSection({ title, movies }) {
+export default function MovieSection({ title, movies, viewAllLink }) {
   if (!movies || movies.length === 0) return null;
 
   return (
@@ -8,9 +9,14 @@ export default function MovieSection({ title, movies }) {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-white sm:text-xl">{title}</h2>
 
-        <button className="text-sm text-red-500 hover:text-red-400 transition">
-          View all
-        </button>
+        {viewAllLink && (
+          <Link
+            to={viewAllLink}
+            className="text-sm text-red-500 hover:text-red-400 transition"
+          >
+            View all
+          </Link>
+        )}
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">

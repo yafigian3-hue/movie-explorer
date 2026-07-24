@@ -22,7 +22,7 @@ const mobileLinkClass = ({ isActive }) =>
       : "text-zinc-400 hover:bg-zinc-800/60 hover:text-white"
   }`;
 
-export default function Navbar() {
+export default function Navbar({ forceVisible = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { clearSearch } = useSearch();
@@ -34,7 +34,7 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const visible = scrolled || isOpen;
+  const visible = forceVisible || scrolled || isOpen;
 
   const closeAll = () => {
     clearSearch();

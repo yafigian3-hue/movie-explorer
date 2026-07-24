@@ -42,13 +42,26 @@ const {
       <Navbar />
       <HeroBanner movies={trendingMovies} />{" "}
       <div className="bg-zinc-950 pb-10">
-        <MovieSection title="🔥 Trending" movies={trendingMovies} />
-
-        <MovieSection title="⭐ Top Rated" movies={topRatedMovies} />
-
-        <MovieSection title="💥 Action" movies={actionMovies} />
-
-        <MovieSection title="👻 Horror" movies={horrorMovies} />
+        <MovieSection
+          title="🔥 Trending"
+          movies={trendingMovies}
+          viewAllLink="/movies?sort=popularity.desc&title=Trending"
+        />
+        <MovieSection
+          title="⭐ Top Rated"
+          movies={topRatedMovies}
+          viewAllLink="/movies?sort=vote_average.desc&title=Top+Rated"
+        />
+        <MovieSection
+          title="💥 Action"
+          movies={actionMovies}
+          viewAllLink="/movies?genre=28&title=Action"
+        />
+        <MovieSection
+          title="👻 Horror"
+          movies={horrorMovies}
+          viewAllLink="/movies?genre=27&title=Horror"
+        />
       </div>
     </>
   );

@@ -29,6 +29,14 @@ export default function SearchProvider({ children }) {
     similarMovies,
     fetchSimilarMovies,
 
+    discoverMovies,
+    discoverPage,
+    discoverTotalPages,
+    discoverLoading,
+    fetchDiscoverFiltered,
+    resetDiscover,
+    discoverTotalResults,
+
     isLoading,
     error,
     fetchAllMovies,
@@ -105,6 +113,14 @@ export default function SearchProvider({ children }) {
 
         similarMovies,
         fetchSimilarMovies,
+
+        discoverMovies,
+        discoverPage,
+        discoverTotalPages,
+        discoverLoading,
+        fetchDiscoverFiltered,
+        resetDiscover,
+        discoverTotalResults,
 
         movieTrailer,
         fetchMovieTrailer,
