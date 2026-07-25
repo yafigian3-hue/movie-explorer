@@ -4,24 +4,28 @@ import { SearchContext } from "./SearchContext";
 export default function useSearch() {
   const context = useContext(SearchContext);
 
-  const {
-    trendingMovies,
-    topRatedMovies,
-    actionMovies,
-    horrorMovies,
+ const {
+   trendingMovies,
+   topRatedMovies,
+   actionMovies,
+   horrorMovies,
 
-    search,
-    setSearch,
-    searchQuery,
-    setSearchQuery,
+   search,
+   setSearch,
+   searchQuery,
+   setSearchQuery,
 
-    searchResults,
-    searchMovies,
+   searchResults,
+   searchMovies,
 
-    clearSearch,
+   searchSuggestions,
+   isSuggestionLoading,
+   fetchSearchSuggestions,
 
-    ...rest
-  } = context;
+   clearSearch,
+
+   ...rest
+ } = context;
 
   const allMovies = useMemo(
     () =>
@@ -37,14 +41,6 @@ export default function useSearch() {
     [trendingMovies, topRatedMovies, actionMovies, horrorMovies],
   );
 
-  const searchSuggestions = useMemo(
-    () =>
-      allMovies.filter((movie) =>
-        movie.title.toLowerCase().includes(search.toLowerCase()),
-      ),
-    [allMovies, search],
-  );
-
   const filteredMovies = useMemo(
     () =>
       allMovies.filter((movie) =>
@@ -53,28 +49,31 @@ export default function useSearch() {
     [allMovies, searchQuery],
   );
 
-  return {
-    ...rest,
+ return {
+   ...rest,
 
-    trendingMovies,
-    topRatedMovies,
-    actionMovies,
-    horrorMovies,
+   trendingMovies,
+   topRatedMovies,
+   actionMovies,
+   horrorMovies,
 
-    allMovies,
+   allMovies,
 
-    search,
-    setSearch,
+   search,
+   setSearch,
 
-    searchQuery,
-    setSearchQuery,
+   searchQuery,
+   setSearchQuery,
 
-    searchResults,
-    searchMovies,
+   searchResults,
+   searchMovies,
 
-    searchSuggestions,
-    filteredMovies,
+   searchSuggestions,
+   isSuggestionLoading,
+   fetchSearchSuggestions,
 
-    clearSearch,
-  };
+   filteredMovies,
+
+   clearSearch,
+ };
 }

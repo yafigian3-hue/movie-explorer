@@ -35,7 +35,7 @@ function SearchSkeleton() {
 export default function SearchResult() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q");
-  const { searchMovies, searchResults, isSearching, lastSearchedQuery } =
+  const { searchMovies, searchResults, isSearching } =
     useSearch();
   const [sortBy, setSortBy] = useState("popular");
 
@@ -55,7 +55,6 @@ export default function SearchResult() {
     });
   }, [results, sortBy]);
 
-  const isStale = query !== lastSearchedQuery;
 
   const showResults = query && !isSearching && results.length > 0;
   const showEmpty = query && !isSearching && results.length === 0;
@@ -67,9 +66,9 @@ export default function SearchResult() {
 
       {showResults && (
         <HeroBanner
-          movies={results}
+          movies={sortedResults}
           limit={5}
-          showProgress={true}
+          showProgress
           variant="search"
         />
       )}

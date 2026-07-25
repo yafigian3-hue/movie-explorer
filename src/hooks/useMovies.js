@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { fetchTMDB, normalizeMovie } from "../services/tmdb";
+import { PLACEHOLDER_IMAGE } from "../utils/placeholder";
 
 export default function useMovies() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,6 +12,8 @@ export default function useMovies() {
   const [horrorMovies, setHorrorMovies] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [isSuggestionLoading, setIsSuggestionLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [lastSearchedQuery, setLastSearchedQuery] = useState("");
   const [search, setSearch] = useState("");
@@ -89,7 +92,6 @@ export default function useMovies() {
       return;
     }
 
-  
     if (inFlightQueryRef.current === trimmed) return;
     inFlightQueryRef.current = trimmed;
 
@@ -120,8 +122,31 @@ export default function useMovies() {
     }
   }, []);
 
+ const fetchSearchSuggestions = useCallback(async (query) => {
+   const trimmed = query.trim();
+
+   if (!trimmed) {
+     setSearchSuggestions([]);
+     return;
+   }
+
+   setIsSuggestionLoading(true);
+
+   try {
+     const data = await fetchTMDB(
+       `/search/movie?query=${encodeURIComponent(trimmed)}`,
+     );
+
+     setSearchSuggestions(data.results.map(normalizeMovie).slice(0, 5));
+   } catch (err) {
+     console.error(err);
+     setSearchSuggestions([]);
+   } finally {
+     setIsSuggestionLoading(false);
+   }
+ }, []);
+
   const fetchMovieDetail = useCallback(async (id) => {
-    // Cache hit: langsung tampilkan tanpa fetch ulang
     if (detailCacheRef.current.has(id)) {
       setMovieDetail(detailCacheRef.current.get(id));
       setError("");
@@ -170,7 +195,7 @@ export default function useMovies() {
         character: person.character,
         profile: person.profile_path
           ? `https://image.tmdb.org/t/p/w185${person.profile_path}`
-          : normalizeMovie({ poster_path: null }).image,
+          : PLACEHOLDER_IMAGE,
       }));
 
       setCast(topCast);
@@ -220,8 +245,8 @@ export default function useMovies() {
 
   const clearSearch = useCallback(() => {
     setSearch("");
-    setSearchQuery("");
-    setSearchResults([]);
+    setSearchSuggestions([]);
+    setIsSuggestionLoading(false);
   }, []);
 
   return {
@@ -237,6 +262,11 @@ export default function useMovies() {
 
     searchResults,
     searchMovies,
+
+    searchSuggestions,
+    fetchSearchSuggestions,
+
+    isSuggestionLoading,
     clearSearch,
 
     movieDetail,

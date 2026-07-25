@@ -1,17 +1,16 @@
 "use client";
 
 import { Star, Play } from "lucide-react";
-import { memo, useState } from "react";
+import { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { GENRES } from "../utils/genres";
 import { PLACEHOLDER_IMAGE } from "../utils/placeholder";
 
 function MovieCard({ movie }) {
-  const [isHovered, setIsHovered] = useState(false);
 
   const imageSrc = movie.image || movie.poster_path || PLACEHOLDER_IMAGE;
   const title = movie.title || "Untitled Movie";
-  const rating = movie.rating ?? movie.vote_average ?? "8.5";
+  const rating = movie.rating ?? movie.vote_average ?? "N/A";
   const description = movie.description || movie.overview || "";
   const year = movie.year || movie.release_date?.slice(0, 4) || "";
 
@@ -25,14 +24,13 @@ function MovieCard({ movie }) {
       .join(", ") || "Unknown";
 
   return (
-    <div
-      className="group relative h-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="group relative h-full">
       <div
         className="relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-600/20 h-full cursor-pointer flex flex-col"
-        onClick={() => navigate(`/movie/${movie.id}`)}
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/movie/${movie.id}`);
+        }}
       >
         <div className="relative w-full aspect-video overflow-hidden bg-zinc-950">
           <img
@@ -45,13 +43,11 @@ function MovieCard({ movie }) {
 
           <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-          {isHovered && (
-            <button className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-600 flex items-center justify-center shadow-lg hover:bg-red-700 transition-colors">
-                <Play size={24} className="text-white fill-white" />
-              </div>
-            </button>
-          )}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+              <Play size={24} className="text-white fill-white" />
+            </div>
+          </div>
 
           <div className="absolute top-3 right-3 bg-red-600 rounded-lg px-2 py-1 flex items-center gap-1">
             <Star size={14} className="text-white fill-white" />
@@ -84,9 +80,12 @@ function MovieCard({ movie }) {
 
             <button
               className="text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold transition-all duration-300 hover:gap-2 flex items-center gap-1"
-              onClick={() => navigate(`/movie/${movie.id}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/movie/${movie.id}`);
+              }}
             >
-              view
+              Detail
               <span className="group-hover:translate-x-1 transition-transform duration-300">
                 →
               </span>

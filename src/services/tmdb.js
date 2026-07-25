@@ -12,13 +12,13 @@ function getToken() {
  * @param {object} options
  */
 export async function fetchTMDB(endpoint, options = {}) {
-  const separator = endpoint.includes("?") ? "&" : "?";
   const url = `${BASE_URL}${endpoint}`;
 
   const response = await fetch(url, {
     ...options,
     headers: {
       Authorization: `Bearer ${getToken()}`,
+      Accept: "application/json",
       ...options.headers,
     },
   });
@@ -36,7 +36,7 @@ export function normalizeMovie(movie) {
     image: movie.poster_path
       ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
       : PLACEHOLDER_IMAGE,
-    rating: movie.vote_average?.toFixed(1) ?? "N/A",
+    rating: movie.vote_average > 0 ? movie.vote_average.toFixed(1) : "N/A",
     year: movie.release_date?.slice(0, 4) || "N/A",
   };
 }

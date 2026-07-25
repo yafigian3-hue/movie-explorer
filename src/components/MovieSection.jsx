@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import MovieCard from "./MovieCard";
 
 export default function MovieSection({ title, movies, viewAllLink }) {
-  if (!movies || movies.length === 0) return null;
+if (!Array.isArray(movies) || movies.length === 0) return null;
 
   return (
     <section className="px-4 py-6 sm:px-6 lg:px-8">

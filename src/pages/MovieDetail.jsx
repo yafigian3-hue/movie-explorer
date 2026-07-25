@@ -87,8 +87,13 @@ export default function MovieDetail() {
     );
   }
 
-  if (!movie) return null;
-
+  if (!movie) {
+    return (
+      <div className="min-h-screen bg-zinc-950">
+        <Navbar />
+      </div>
+    );
+  }
   const releaseYear = movie.release_date
     ? new Date(movie.release_date).getFullYear()
     : null;

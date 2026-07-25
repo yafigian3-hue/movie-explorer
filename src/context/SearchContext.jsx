@@ -22,6 +22,9 @@ export default function SearchProvider({ children }) {
     search,
     setSearch,
     searchQuery,
+    searchSuggestions,
+    isSuggestionLoading,
+    fetchSearchSuggestions,
     setSearchQuery,
     movieDetail,
     fetchMovieDetail,
@@ -38,6 +41,7 @@ export default function SearchProvider({ children }) {
     resetDiscover,
     isLoading,
     error,
+    clearSearch,
     fetchAllMovies,
     isSearching,
     lastSearchedQuery,
@@ -82,13 +86,6 @@ export default function SearchProvider({ children }) {
     }
   }, []);
 
-  const clearSearch = useCallback(() => {
-    setSearch("");
-    setSearchQuery("");
-    setSearchResults([]);
-    setIsSearching(false);
-  }, [setSearch, setSearchQuery]);
-
   const value = useMemo(
     () => ({
       trendingMovies,
@@ -100,6 +97,9 @@ export default function SearchProvider({ children }) {
       searchMovies,
       search,
       setSearch,
+      searchSuggestions,
+      isSuggestionLoading,
+      fetchSearchSuggestions,
       searchQuery,
       setSearchQuery,
       movieDetail,
@@ -133,6 +133,9 @@ export default function SearchProvider({ children }) {
       searchMovies,
       search,
       setSearch,
+      searchSuggestions,
+      isSuggestionLoading,
+      fetchSearchSuggestions,
       searchQuery,
       setSearchQuery,
       movieDetail,
