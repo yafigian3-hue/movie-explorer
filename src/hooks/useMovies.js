@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { PLACEHOLDER_IMAGE } from "../utils/placeholder";
+import { useState, useCallback, useRef } from "react";
+import { fetchTMDB, normalizeMovie } from "../services/tmdb";
 
 export default function useMovies() {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,126 +11,45 @@ export default function useMovies() {
   const [horrorMovies, setHorrorMovies] = useState([]);
 
   const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [lastSearchedQuery, setLastSearchedQuery] = useState("");
   const [search, setSearch] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [movieDetail, setMovieDetail] = useState(null);
   const [similarMovies, setSimilarMovies] = useState([]);
+  const [cast, setCast] = useState([]);
 
   const [discoverMovies, setDiscoverMovies] = useState([]);
   const [discoverPage, setDiscoverPage] = useState(1);
   const [discoverTotalPages, setDiscoverTotalPages] = useState(1);
-  const [discoverLoading, setDiscoverLoading] = useState(false);
   const [discoverTotalResults, setDiscoverTotalResults] = useState(0);
+  const [discoverLoading, setDiscoverLoading] = useState(false);
 
-  const [cast, setCast] = useState([]);
+  const searchAbortRef = useRef(null);
+  const inFlightQueryRef = useRef(null);
+  const searchCacheRef = useRef(new Map());
+  const detailCacheRef = useRef(new Map());
+  const detailAbortRef = useRef(null);
 
-  
-
-  const fetchMovies = useCallback((endpoint, setState) => {
-    const token = import.meta.env.VITE_TMDB_TOKEN;
-
-    return fetch(`https://api.themoviedb.org/3/movie/${endpoint}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data");
-        }
-
-        return response.json();
-      })
-      .then((data) => {
-        const normalizedMovies = data.results.map((movie) => ({
-          ...movie,
-
-          image: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : PLACEHOLDER_IMAGE,
-
-          rating: movie.vote_average.toFixed(1),
-
-          year: movie.release_date?.slice(0, 4) || "N/A",
-        }));
-
-        setState(normalizedMovies);
-      });
-  }, []);
-
-  const fetchDiscoverMovies = useCallback((genreId, setState) => {
-    const token = import.meta.env.VITE_TMDB_TOKEN;
-
-    return fetch(
-      `https://api.themoviedb.org/3/discover/movie?with_genres=${genreId}&sort_by=popularity.desc`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Gagal mengambil data");
-        }
-
-        return response.json();
-      })
-      .then((data) => {
-        const normalizedMovies = data.results.map((movie) => ({
-          ...movie,
-
-          image: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : PLACEHOLDER_IMAGE,
-
-          rating: movie.vote_average.toFixed(1),
-
-          year: movie.release_date?.slice(0, 4) || "N/A",
-        }));
-
-        setState(normalizedMovies);
-      });
-  }, []);
-
-  const searchMovies = useCallback(async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    const token = import.meta.env.VITE_TMDB_TOKEN;
-
+  const fetchMovies = useCallback(async (endpoint, setState) => {
     try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Gagal mencari film");
-      }
-
-      const data = await response.json();
-
-      const normalizedMovies = data.results.map((movie) => ({
-        ...movie,
-
-        image: movie.poster_path
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : PLACEHOLDER_IMAGE,
-        rating: movie.vote_average.toFixed(1),
-
-        year: movie.release_date?.slice(0, 4) || "N/A",
-      }));
-
-      setSearchResults(normalizedMovies);
+      const data = await fetchTMDB(`/movie/${endpoint}`);
+      setState(data.results.map(normalizeMovie));
     } catch (err) {
       console.error(err);
+      throw err;
+    }
+  }, []);
+
+  const fetchDiscoverMovies = useCallback(async (genreId, setState) => {
+    try {
+      const data = await fetchTMDB(
+        `/discover/movie?with_genres=${genreId}&sort_by=popularity.desc`,
+      );
+      setState(data.results.map(normalizeMovie));
+    } catch (err) {
+      console.error(err);
+      throw err;
     }
   }, []);
 
@@ -142,9 +61,7 @@ export default function useMovies() {
       await Promise.all([
         fetchMovies("popular", setTrendingMovies),
         fetchMovies("top_rated", setTopRatedMovies),
-
         fetchDiscoverMovies(28, setActionMovies),
-
         fetchDiscoverMovies(27, setHorrorMovies),
       ]);
     } catch (err) {
@@ -155,27 +72,78 @@ export default function useMovies() {
     }
   }, [fetchMovies, fetchDiscoverMovies]);
 
+  const searchMovies = useCallback(async (query) => {
+    const trimmed = query.trim();
+
+    if (!trimmed) {
+      setSearchResults([]);
+      setIsSearching(false);
+      setLastSearchedQuery("");
+      return;
+    }
+
+    if (searchCacheRef.current.has(trimmed)) {
+      setSearchResults(searchCacheRef.current.get(trimmed));
+      setIsSearching(false);
+      setLastSearchedQuery(trimmed);
+      return;
+    }
+
+  
+    if (inFlightQueryRef.current === trimmed) return;
+    inFlightQueryRef.current = trimmed;
+
+    searchAbortRef.current?.abort();
+    const controller = new AbortController();
+    searchAbortRef.current = controller;
+
+    setIsSearching(true);
+
+    try {
+      const data = await fetchTMDB(
+        `/search/movie?query=${encodeURIComponent(trimmed)}`,
+        { signal: controller.signal },
+      );
+
+      const normalized = data.results.map(normalizeMovie);
+      searchCacheRef.current.set(trimmed, normalized);
+      setSearchResults(normalized);
+      setLastSearchedQuery(trimmed);
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      console.error(err);
+    } finally {
+      if (!controller.signal.aborted) setIsSearching(false);
+      if (inFlightQueryRef.current === trimmed) {
+        inFlightQueryRef.current = null;
+      }
+    }
+  }, []);
+
   const fetchMovieDetail = useCallback(async (id) => {
+    // Cache hit: langsung tampilkan tanpa fetch ulang
+    if (detailCacheRef.current.has(id)) {
+      setMovieDetail(detailCacheRef.current.get(id));
+      setError("");
+      return;
+    }
+
+    detailAbortRef.current?.abort();
+    const controller = new AbortController();
+    detailAbortRef.current = controller;
+
     setIsLoading(true);
     setError("");
 
-    const token = import.meta.env.VITE_TMDB_TOKEN;
-
     try {
-      const response = await fetch(`https://api.themoviedb.org/3/movie/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const data = await fetchTMDB(`/movie/${id}`, {
+        signal: controller.signal,
       });
 
-      if (!response.ok) {
-        throw new Error("Gagal mengambil detail film");
-      }
-
-      const data = await response.json();
-
+      detailCacheRef.current.set(id, data);
       setMovieDetail(data);
     } catch (err) {
+      if (err.name === "AbortError") return;
       console.error(err);
       setError("Film tidak ditemukan");
     } finally {
@@ -184,45 +152,36 @@ export default function useMovies() {
   }, []);
 
   const fetchSimilarMovies = useCallback(async (id) => {
-    const token = import.meta.env.VITE_TMDB_TOKEN;
-
     try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/movie/${id}/similar`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Gagal mengambil similar movies");
-      }
-
-      const data = await response.json();
-
-      const normalizedMovies = data.results.map((movie) => ({
-        ...movie,
-
-        image: movie.poster_path
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : PLACEHOLDER_IMAGE,
-
-        rating: movie.vote_average.toFixed(1),
-
-        year: movie.release_date?.slice(0, 4) || "N/A",
-      }));
-
-      setSimilarMovies(normalizedMovies);
+      const data = await fetchTMDB(`/movie/${id}/similar`);
+      setSimilarMovies(data.results.map(normalizeMovie));
     } catch (err) {
       console.error(err);
     }
   }, []);
 
+  const fetchMovieCast = useCallback(async (id) => {
+    try {
+      const data = await fetchTMDB(`/movie/${id}/credits`);
+
+      const topCast = data.cast.slice(0, 10).map((person) => ({
+        id: person.id,
+        name: person.name,
+        character: person.character,
+        profile: person.profile_path
+          ? `https://image.tmdb.org/t/p/w185${person.profile_path}`
+          : normalizeMovie({ poster_path: null }).image,
+      }));
+
+      setCast(topCast);
+    } catch (err) {
+      console.error(err);
+      setCast([]);
+    }
+  }, []);
+
   const fetchDiscoverFiltered = useCallback(
     async ({ genre, year, sortBy = "popularity.desc", page = 1 } = {}) => {
-      const token = import.meta.env.VITE_TMDB_TOKEN;
       setDiscoverLoading(true);
 
       try {
@@ -231,25 +190,12 @@ export default function useMovies() {
         params.set("page", page);
         if (genre) params.set("with_genres", genre);
         if (year) params.set("primary_release_year", year);
-        if (sortBy === "vote_average.desc") params.set("vote_count.gte", "300");
+        if (sortBy === "vote_average.desc") {
+          params.set("vote_count.gte", "300");
+        }
 
-        const response = await fetch(
-          `https://api.themoviedb.org/3/discover/movie?${params.toString()}`,
-          { headers: { Authorization: `Bearer ${token}` } },
-        );
-
-        if (!response.ok) throw new Error("Gagal memuat film");
-
-        const data = await response.json();
-
-        const normalized = data.results.map((movie) => ({
-          ...movie,
-          image: movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : PLACEHOLDER_IMAGE,
-          rating: movie.vote_average.toFixed(1),
-          year: movie.release_date?.slice(0, 4) || "N/A",
-        }));
+        const data = await fetchTMDB(`/discover/movie?${params.toString()}`);
+        const normalized = data.results.map(normalizeMovie);
 
         setDiscoverMovies((prev) =>
           page === 1 ? normalized : [...prev, ...normalized],
@@ -272,42 +218,6 @@ export default function useMovies() {
     setDiscoverTotalPages(1);
   }, []);
 
-  const fetchMovieCast = useCallback(async (id) => {
-    const token = import.meta.env.VITE_TMDB_TOKEN;
-
-    try {
-      const response = await fetch(
-        `https://api.themoviedb.org/3/movie/${id}/credits`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Gagal mengambil data cast");
-      }
-
-      const data = await response.json();
-
-      // Ambil 10 pemeran utama saja
-      const topCast = data.cast.slice(0, 10).map((person) => ({
-        id: person.id,
-        name: person.name,
-        character: person.character,
-        profile: person.profile_path
-          ? `https://image.tmdb.org/t/p/w185${person.profile_path}`
-          : PLACEHOLDER_IMAGE,
-      }));
-
-      setCast(topCast);
-    } catch (err) {
-      console.error(err);
-      setCast([]);
-    }
-  }, []);
-
   const clearSearch = useCallback(() => {
     setSearch("");
     setSearchQuery("");
@@ -317,7 +227,6 @@ export default function useMovies() {
   return {
     search,
     setSearch,
-
     searchQuery,
     setSearchQuery,
 
@@ -336,19 +245,21 @@ export default function useMovies() {
     similarMovies,
     fetchSimilarMovies,
 
+    cast,
+    fetchMovieCast,
+
     discoverMovies,
     discoverPage,
     discoverTotalPages,
+    discoverTotalResults,
     discoverLoading,
     fetchDiscoverFiltered,
     resetDiscover,
-    discoverTotalResults,
 
     isLoading,
     error,
     fetchAllMovies,
-
-    cast,
-    fetchMovieCast,
+    isSearching,
+    lastSearchedQuery,
   };
 }

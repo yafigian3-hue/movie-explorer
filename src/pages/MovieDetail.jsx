@@ -250,6 +250,8 @@ export default function MovieDetail() {
                   <img
                     src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`}
                     alt={movie.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full rounded-xl shadow-2xl border border-zinc-800"
                   />
                   <button className="w-full mt-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-600/20">

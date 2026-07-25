@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import MovieCard from "../components/MovieCard";
 import useSearch from "../context/useSearch";
 import { GENRES } from "../utils/genres";
+import useInfiniteScroll from "../hooks/useInfiniteScroll";
 
 const SORT_OPTIONS = [
   { value: "popularity.desc", label: "Paling Populer" },
@@ -82,16 +83,29 @@ export default function Movies() {
     resetDiscover();
     loadMovies(1);
     window.scrollTo({ top: 0, behavior: "instant" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genre, year, sortBy]);
+
+  const hasMore = discoverPage < discoverTotalPages;
+
+    const isFirstLoad = discoverLoading && discoverPage === 1;
+
+
+  const handleLoadMore = useCallback(() => {
+    if (!discoverLoading && hasMore) {
+      loadMovies(discoverPage + 1);
+    }
+  }, [discoverLoading, hasMore, discoverPage, loadMovies]);
+
+  const sentinelRef = useInfiniteScroll(
+    handleLoadMore,
+    hasMore && !isFirstLoad,
+  );
 
   const resetFilters = () => {
     setGenre("");
     setYear("");
     setSortBy("popularity.desc");
   };
-
-  const isFirstLoad = discoverLoading && discoverPage === 1;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -210,18 +224,14 @@ export default function Movies() {
           </div>
         )}
 
-        {!isFirstLoad && discoverPage < discoverTotalPages && (
-          <div className="flex justify-center mt-10">
-            <button
-              onClick={() => loadMovies(discoverPage + 1)}
-              disabled={discoverLoading}
-              className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-white px-7 py-3 rounded-full font-semibold text-sm transition-all disabled:opacity-50 hover:scale-[1.02] active:scale-95"
-            >
-              {discoverLoading && (
+        {!isFirstLoad && hasMore && (
+          <div ref={sentinelRef} className="flex justify-center mt-10 py-6">
+            {discoverLoading && (
+              <div className="flex items-center gap-2 text-zinc-500 text-sm">
                 <Loader2 size={16} className="animate-spin" />
-              )}
-              Muat Lebih Banyak
-            </button>
+                Memuat film berikutnya...
+              </div>
+            )}
           </div>
         )}
       </main>

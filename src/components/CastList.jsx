@@ -17,6 +17,8 @@ export default function CastList({ cast }) {
               <img
                 src={person.profile}
                 alt={person.name}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </div>

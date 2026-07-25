@@ -39,6 +39,8 @@ export default function SearchProvider({ children }) {
     isLoading,
     error,
     fetchAllMovies,
+    isSearching,
+    lastSearchedQuery,
   } = useMovies();
 
   useEffect(() => {
@@ -83,6 +85,8 @@ export default function SearchProvider({ children }) {
   const clearSearch = useCallback(() => {
     setSearch("");
     setSearchQuery("");
+    setSearchResults([]);
+    setIsSearching(false);
   }, [setSearch, setSearchQuery]);
 
   const value = useMemo(
@@ -116,6 +120,8 @@ export default function SearchProvider({ children }) {
       isLoading,
       error,
       clearSearch,
+      isSearching,
+      lastSearchedQuery,
     }),
     [
       trendingMovies,
@@ -147,6 +153,8 @@ export default function SearchProvider({ children }) {
       isLoading,
       error,
       clearSearch,
+      isSearching,
+      lastSearchedQuery,
     ],
   );
 

@@ -2,35 +2,26 @@
 
 import useSearch from "../context/useSearch";
 import { useNavigate } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Search, X } from "lucide-react";
 
 export default function SearchBar({ isMobile = false }) {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
 
-  const {
-    search,
-    setSearch,
-    setSearchQuery,
-    searchResults,
-    searchMovies,
-    clearSearch,
-  } = useSearch();
+  const { search, setSearch, setSearchQuery, searchMovies, clearSearch } =
+    useSearch();
 
-  useEffect(() => {
-    if (!search.trim()) return;
+  const submitSearch = () => {
+    const trimmed = search.trim();
+    if (!trimmed) return;
 
-    const timer = setTimeout(() => {
-      searchMovies(search);
-    }, 400);
-
-    return () => clearTimeout(timer);
-  }, [search, searchMovies]);
+    setSearchQuery(trimmed);
+    searchMovies(trimmed); // mulai fetch SEKARANG, tidak menunggu chunk halaman
+    navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+  };
 
   const handleClear = () => {
     clearSearch();
-    setIsOpen(false);
   };
 
   return (
@@ -39,16 +30,10 @@ export default function SearchBar({ isMobile = false }) {
         <input
           type="search"
           value={search}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSearch(value);
-            setIsOpen(value.length > 0);
-          }}
+          onChange={(e) => setSearch(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && search.trim()) {
-              setSearchQuery(search);
-              setIsOpen(false);
-              navigate(`/search?q=${encodeURIComponent(search)}`);
+            if (e.key === "Enter") {
+              submitSearch();
             }
           }}
           className="w-full rounded-xl border border-zinc-700 bg-zinc-900 py-2.5 pl-4 pr-20 text-zinc-100 placeholder-zinc-500 outline-none transition 
@@ -69,12 +54,7 @@ export default function SearchBar({ isMobile = false }) {
           )}
 
           <button
-            onClick={() => {
-              if (!search.trim()) return;
-              setSearchQuery(search);
-              setIsOpen(false);
-              navigate(`/search?q=${encodeURIComponent(search)}`);
-            }}
+            onClick={submitSearch}
             type="button"
             className="text-zinc-400 hover:text-white transition p-1 bg-zinc-700/50 rounded-md hover:bg-red-600"
           >
@@ -82,31 +62,6 @@ export default function SearchBar({ isMobile = false }) {
           </button>
         </div>
       </div>
-
-      {isOpen && search.trim().length > 0 && (
-        <ul className="absolute z-50 mt-2 w-full bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden shadow-xl">
-          {searchResults.length > 0 ? (
-            searchResults.map((movie) => (
-              <li
-                key={movie.id}
-                className="px-4 py-2 text-zinc-300 hover:bg-zinc-700 cursor-pointer"
-                onClick={() => {
-                  setSearch(movie.title);
-                  setSearchQuery(movie.title);
-                  setIsOpen(false);
-                  navigate(`/movie/${movie.id}`);
-                }}
-              >
-                {movie.title}
-              </li>
-            ))
-          ) : (
-            <li className="px-4 py-2 text-zinc-500 italic">
-              Film tidak ditemukan...
-            </li>
-          )}
-        </ul>
-      )}
     </div>
   );
 }
