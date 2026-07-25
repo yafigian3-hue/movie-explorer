@@ -1,12 +1,12 @@
 "use client";
 
 import { Star, Play } from "lucide-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GENRES } from "../utils/genres";
 import { PLACEHOLDER_IMAGE } from "../utils/placeholder";
 
-export default function MovieCard({ movie }) {
+function MovieCard({ movie }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const imageSrc = movie.image || movie.poster_path || PLACEHOLDER_IMAGE;
@@ -23,7 +23,6 @@ export default function MovieCard({ movie }) {
       .map((id) => GENRES[id])
       .filter(Boolean)
       .join(", ") || "Unknown";
-      
 
   return (
     <div
@@ -39,6 +38,8 @@ export default function MovieCard({ movie }) {
           <img
             src={imageSrc}
             alt={title}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
           />
 
@@ -96,3 +97,5 @@ export default function MovieCard({ movie }) {
     </div>
   );
 }
+
+export default memo(MovieCard);

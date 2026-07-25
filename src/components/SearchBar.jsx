@@ -18,7 +18,6 @@ export default function SearchBar({ isMobile = false }) {
     clearSearch,
   } = useSearch();
 
-  // Debounce: baru fetch 400ms setelah user berhenti mengetik
   useEffect(() => {
     if (!search.trim()) return;
 

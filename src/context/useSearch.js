@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import { SearchContext } from "./SearchContext";
 
 export default function useSearch() {
@@ -23,45 +23,58 @@ export default function useSearch() {
     ...rest
   } = context;
 
-  const allMovies = [
-    ...trendingMovies,
-    ...topRatedMovies,
-    ...actionMovies,
-    ...horrorMovies,
-  ].filter(
-    (movie, index, self) => index === self.findIndex((m) => m.id === movie.id),
+  const allMovies = useMemo(
+    () =>
+      [
+        ...trendingMovies,
+        ...topRatedMovies,
+        ...actionMovies,
+        ...horrorMovies,
+      ].filter(
+        (movie, index, self) =>
+          index === self.findIndex((m) => m.id === movie.id),
+      ),
+    [trendingMovies, topRatedMovies, actionMovies, horrorMovies],
   );
 
-  const searchSuggestions = allMovies.filter((movie) =>
-    movie.title.toLowerCase().includes(search.toLowerCase()),
+  const searchSuggestions = useMemo(
+    () =>
+      allMovies.filter((movie) =>
+        movie.title.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [allMovies, search],
   );
 
-  const filteredMovies = allMovies.filter((movie) =>
-    movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredMovies = useMemo(
+    () =>
+      allMovies.filter((movie) =>
+        movie.title.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    [allMovies, searchQuery],
   );
 
- return {
-   ...rest,
+  return {
+    ...rest,
 
-   trendingMovies,
-   topRatedMovies,
-   actionMovies,
-   horrorMovies,
+    trendingMovies,
+    topRatedMovies,
+    actionMovies,
+    horrorMovies,
 
-   allMovies,
+    allMovies,
 
-   search,
-   setSearch,
+    search,
+    setSearch,
 
-   searchQuery,
-   setSearchQuery,
+    searchQuery,
+    setSearchQuery,
 
-   searchResults,
-   searchMovies,
+    searchResults,
+    searchMovies,
 
-   searchSuggestions,
-   filteredMovies,
+    searchSuggestions,
+    filteredMovies,
 
-   clearSearch,
- };
+    clearSearch,
+  };
 }

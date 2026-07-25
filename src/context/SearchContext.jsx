@@ -1,12 +1,15 @@
-import { createContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import useMovies from "../hooks/useMovies";
-import { useCallback } from "react";
 
 export const SearchContext = createContext();
 
 export default function SearchProvider({ children }) {
- 
-
   const [movieTrailer, setMovieTrailer] = useState(null);
 
   const {
@@ -14,50 +17,46 @@ export default function SearchProvider({ children }) {
     topRatedMovies,
     actionMovies,
     horrorMovies,
-
     searchResults,
     searchMovies,
-
     search,
     setSearch,
     searchQuery,
     setSearchQuery,
-
     movieDetail,
     fetchMovieDetail,
-
     similarMovies,
     fetchSimilarMovies,
-
+    cast,
+    fetchMovieCast,
     discoverMovies,
     discoverPage,
     discoverTotalPages,
+    discoverTotalResults,
     discoverLoading,
     fetchDiscoverFiltered,
     resetDiscover,
-    discoverTotalResults,
-
     isLoading,
     error,
     fetchAllMovies,
-
-    cast,
-    fetchMovieCast,
   } = useMovies();
-
-  
 
   useEffect(() => {
     fetchAllMovies();
   }, [fetchAllMovies]);
 
-  const allMovies = [
-    ...trendingMovies,
-    ...topRatedMovies,
-    ...actionMovies,
-    ...horrorMovies,
-  ].filter(
-    (movie, index, self) => index === self.findIndex((m) => m.id === movie.id),
+  const allMovies = useMemo(
+    () =>
+      [
+        ...trendingMovies,
+        ...topRatedMovies,
+        ...actionMovies,
+        ...horrorMovies,
+      ].filter(
+        (movie, index, self) =>
+          index === self.findIndex((m) => m.id === movie.id),
+      ),
+    [trendingMovies, topRatedMovies, actionMovies, horrorMovies],
   );
 
   const fetchMovieTrailer = useCallback(async (id) => {
@@ -70,13 +69,10 @@ export default function SearchProvider({ children }) {
           },
         },
       );
-
       const data = await response.json();
-
       const trailer = data.results.find(
         (video) => video.site === "YouTube" && video.type === "Trailer",
       );
-
       setMovieTrailer(trailer || null);
     } catch (error) {
       console.error(error);
@@ -84,57 +80,77 @@ export default function SearchProvider({ children }) {
     }
   }, []);
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setSearch("");
     setSearchQuery("");
-  };
+  }, [setSearch, setSearchQuery]);
+
+  const value = useMemo(
+    () => ({
+      trendingMovies,
+      topRatedMovies,
+      actionMovies,
+      horrorMovies,
+      allMovies,
+      searchResults,
+      searchMovies,
+      search,
+      setSearch,
+      searchQuery,
+      setSearchQuery,
+      movieDetail,
+      fetchMovieDetail,
+      similarMovies,
+      fetchSimilarMovies,
+      cast,
+      fetchMovieCast,
+      discoverMovies,
+      discoverPage,
+      discoverTotalPages,
+      discoverTotalResults,
+      discoverLoading,
+      fetchDiscoverFiltered,
+      resetDiscover,
+      movieTrailer,
+      fetchMovieTrailer,
+      isLoading,
+      error,
+      clearSearch,
+    }),
+    [
+      trendingMovies,
+      topRatedMovies,
+      actionMovies,
+      horrorMovies,
+      allMovies,
+      searchResults,
+      searchMovies,
+      search,
+      setSearch,
+      searchQuery,
+      setSearchQuery,
+      movieDetail,
+      fetchMovieDetail,
+      similarMovies,
+      fetchSimilarMovies,
+      cast,
+      fetchMovieCast,
+      discoverMovies,
+      discoverPage,
+      discoverTotalPages,
+      discoverTotalResults,
+      discoverLoading,
+      fetchDiscoverFiltered,
+      resetDiscover,
+      movieTrailer,
+      fetchMovieTrailer,
+      isLoading,
+      error,
+      clearSearch,
+    ],
+  );
 
   return (
-    <SearchContext.Provider
-      value={{
-        trendingMovies,
-        topRatedMovies,
-        actionMovies,
-        horrorMovies,
-
-        allMovies,
-
-        searchResults,
-        searchMovies,
-
-        search,
-        setSearch,
-
-        searchQuery,
-        setSearchQuery,
-
-        movieDetail,
-        fetchMovieDetail,
-
-        similarMovies,
-        fetchSimilarMovies,
-
-        discoverMovies,
-        discoverPage,
-        discoverTotalPages,
-        discoverLoading,
-        fetchDiscoverFiltered,
-        resetDiscover,
-        discoverTotalResults,
-
-        movieTrailer,
-        fetchMovieTrailer,
-
-        isLoading,
-        error,
-
-        clearSearch,
-
-        cast,
-        fetchMovieCast,
-      }}
-    >
-      {children}
-    </SearchContext.Provider>
+    <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
   );
 }
