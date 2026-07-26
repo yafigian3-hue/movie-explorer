@@ -20,6 +20,7 @@ export default function useMovies() {
   const [searchQuery, setSearchQuery] = useState("");
   const [movieDetail, setMovieDetail] = useState(null);
   const [similarMovies, setSimilarMovies] = useState([]);
+  const [watchProviders, setWatchProviders] = useState(null);
   const [cast, setCast] = useState([]);
 
   const [discoverMovies, setDiscoverMovies] = useState([]);
@@ -122,29 +123,29 @@ export default function useMovies() {
     }
   }, []);
 
- const fetchSearchSuggestions = useCallback(async (query) => {
-   const trimmed = query.trim();
+  const fetchSearchSuggestions = useCallback(async (query) => {
+    const trimmed = query.trim();
 
-   if (!trimmed) {
-     setSearchSuggestions([]);
-     return;
-   }
+    if (!trimmed) {
+      setSearchSuggestions([]);
+      return;
+    }
 
-   setIsSuggestionLoading(true);
+    setIsSuggestionLoading(true);
 
-   try {
-     const data = await fetchTMDB(
-       `/search/movie?query=${encodeURIComponent(trimmed)}`,
-     );
+    try {
+      const data = await fetchTMDB(
+        `/search/movie?query=${encodeURIComponent(trimmed)}`,
+      );
 
-     setSearchSuggestions(data.results.map(normalizeMovie).slice(0, 5));
-   } catch (err) {
-     console.error(err);
-     setSearchSuggestions([]);
-   } finally {
-     setIsSuggestionLoading(false);
-   }
- }, []);
+      setSearchSuggestions(data.results.map(normalizeMovie).slice(0, 5));
+    } catch (err) {
+      console.error(err);
+      setSearchSuggestions([]);
+    } finally {
+      setIsSuggestionLoading(false);
+    }
+  }, []);
 
   const fetchMovieDetail = useCallback(async (id) => {
     if (detailCacheRef.current.has(id)) {
@@ -202,6 +203,17 @@ export default function useMovies() {
     } catch (err) {
       console.error(err);
       setCast([]);
+    }
+  }, []);
+
+  const fetchWatchProviders = useCallback(async (id) => {
+    try {
+      const data = await fetchTMDB(`/movie/${id}/watch/providers`);
+      const region = data.results?.ID || data.results?.US || null;
+      setWatchProviders(region);
+    } catch (err) {
+      console.error(err);
+      setWatchProviders(null);
     }
   }, []);
 
@@ -274,6 +286,9 @@ export default function useMovies() {
 
     similarMovies,
     fetchSimilarMovies,
+
+    watchProviders,
+    fetchWatchProviders,
 
     cast,
     fetchMovieCast,

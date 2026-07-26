@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import HeroBanner from "../components/HeroBanner";
+import WatchProviders from "../components/WatchProviders";
 import useSearch from "../context/useSearch";
 import MovieSection from "../components/MovieSection";
 import CastList from "../components/CastList";
@@ -29,6 +30,8 @@ export default function MovieDetail() {
     fetchMovieTrailer,
     cast,
     fetchMovieCast,
+    watchProviders,
+    fetchWatchProviders,
     isLoading,
     error,
   } = useSearch();
@@ -38,16 +41,19 @@ export default function MovieDetail() {
     fetchSimilarMovies(id);
     fetchMovieTrailer(id);
     fetchMovieCast(id);
+    fetchWatchProviders(id);
   }, [
     id,
     fetchMovieDetail,
     fetchSimilarMovies,
     fetchMovieTrailer,
     fetchMovieCast,
+    fetchWatchProviders,
   ]);
 
   const movie = movieDetail;
   const [isPlayingTrailer, setIsPlayingTrailer] = useState(false);
+  const [showWatchModal, setShowWatchModal] = useState(false);
 
   useEffect(() => {
     setIsPlayingTrailer(false);
@@ -122,11 +128,13 @@ export default function MovieDetail() {
 
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex gap-3">
-                <button className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03] shadow-lg shadow-red-600/20">
+                <button
+                  onClick={() => setShowWatchModal(true)}
+                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03] shadow-lg shadow-red-600/20"
+                >
                   <Play size={18} className="fill-white" />
                   Tonton
                 </button>
-
                 <button
                   onClick={() => hasTrailer && setIsPlayingTrailer(true)}
                   disabled={!hasTrailer}
@@ -259,7 +267,10 @@ export default function MovieDetail() {
                     decoding="async"
                     className="w-full rounded-xl shadow-2xl border border-zinc-800"
                   />
-                  <button className="w-full mt-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-600/20">
+                  <button
+                    onClick={() => setShowWatchModal(true)}
+                    className="w-full mt-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
+                  >
                     <Play size={20} fill="white" />
                     Tonton Sekarang
                   </button>
@@ -270,6 +281,13 @@ export default function MovieDetail() {
         </div>
       </div>
 
+      {showWatchModal && (
+        <WatchProviders
+          data={watchProviders}
+          movieTitle={movie.title}
+          onClose={() => setShowWatchModal(false)}
+        />
+      )}
       <MovieSection title="Film Serupa" movies={similarMovies} />
     </div>
   );

@@ -3,11 +3,10 @@
 import useSearch from "../context/useSearch";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
-import { Search, SearchCheck, Star, X } from "lucide-react";
+import { Search, X, Star, Loader2 } from "lucide-react";
 
 export default function SearchBar({ isMobile = false }) {
   const navigate = useNavigate();
-
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef(null);
 
@@ -15,46 +14,26 @@ export default function SearchBar({ isMobile = false }) {
     search,
     setSearch,
     setSearchQuery,
-
     searchMovies,
+    clearSearch,
     searchSuggestions,
     fetchSearchSuggestions,
     isSuggestionLoading,
-
-    clearSearch,
   } = useSearch();
 
-  const submitSearch = () => {
-    const trimmed = search.trim();
-    if (!trimmed) return;
+ useEffect(() => {
+   const trimmed = search.trim();
 
-    setSearchQuery(trimmed);
-    searchMovies(trimmed);
+   if (trimmed.length < 2) {
+     return;
+   }
 
-    setIsOpen(false);
-    navigate(`/search?q=${encodeURIComponent(trimmed)}`);
-  };
+   const timer = setTimeout(() => {
+     fetchSearchSuggestions(trimmed);
+   }, 250);
 
-  const handleClear = () => {
-    clearSearch();
-    setIsOpen(false);
-  };
-
-  useEffect(() => {
-    const trimmed = search.trim();
-
-    if (!trimmed) return;
-
-    const timer = setTimeout(() => {
-      fetchSearchSuggestions(trimmed);
-    }, 250);
-
-    return () => clearTimeout(timer);
-  }, [search, fetchSearchSuggestions]);
-
-  useEffect(() => {
-    setIsOpen(search.trim() !== "");
-  }, [searchSuggestions, search]);
+   return () => clearTimeout(timer);
+ }, [search, fetchSearchSuggestions]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -64,30 +43,47 @@ export default function SearchBar({ isMobile = false }) {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const submitSearch = () => {
+    const trimmed = search.trim();
+    if (!trimmed) return;
+
+    setSearchQuery(trimmed);
+    searchMovies(trimmed);
+    setIsOpen(false);
+    navigate(`/search?q=${encodeURIComponent(trimmed)}`);
+  };
+
+  const handleClear = () => {
+    clearSearch();
+    setIsOpen(false);
+  };
+
+  const goToMovie = (movie) => {
+    setSearch(movie.title);
+    setIsOpen(false);
+    navigate(`/movie/${movie.id}`);
+  };
 
   return (
     <div
       ref={searchRef}
       className={`relative ${isMobile ? "w-full" : "w-full max-w-xs"}`}
     >
-      {" "}
       <div className="relative flex items-center">
         <input
           type="search"
           value={search}
           onChange={(e) => {
-            const value = e.target.value;
-
-            setSearch(value);
-
-            if (!value.trim()) {
-              setIsOpen(false);
-            }
+            setSearch(e.target.value);
+            setIsOpen(e.target.value.trim().length > 0);
+          }}
+          onFocus={() => {
+            if (search.trim()) setIsOpen(true);
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -120,45 +116,34 @@ export default function SearchBar({ isMobile = false }) {
           </button>
         </div>
       </div>
+
       {isOpen && search.trim().length > 0 && (
-        <ul className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-zinc-700 bg-zinc-900 shadow-2xl">
+        <ul className="absolute z-50 mt-2 w-full bg-zinc-800 border border-zinc-700 rounded-xl overflow-hidden shadow-xl">
           {isSuggestionLoading ? (
-            <li className="flex items-center gap-2 px-4 py-3 text-sm text-zinc-400">
-              <SearchCheck size={16} className="animate-pulse text-red-500" />
-              <span>Mencari film...</span>
+            <li className="px-4 py-3 flex items-center gap-2 text-zinc-400 text-sm">
+              <Loader2 size={14} className="animate-spin" />
+              Mencari film...
             </li>
           ) : searchSuggestions.length > 0 ? (
             searchSuggestions.map((movie) => (
               <li
                 key={movie.id}
-                onClick={() => {
-                  setSearch(movie.title);
-                  setSearchQuery(movie.title);
-                  setIsOpen(false);
-                  navigate(`/movie/${movie.id}`);
-                }}
-                className="flex items-center justify-between gap-3 cursor-pointer border-b border-zinc-800 px-4 py-3 transition-colors hover:bg-zinc-800 last:border-b-0"
+                onClick={() => goToMovie(movie)}
+                className="px-4 py-2.5 flex items-center justify-between gap-3 text-zinc-300 hover:bg-zinc-700 cursor-pointer transition-colors"
               >
-                <div className="flex-1 overflow-hidden">
-                  <p className="truncate font-medium text-white">
-                    {movie.title}
-                  </p>
-
-                  <p className="mt-1 text-xs text-zinc-500">{movie.year}</p>
-                </div>
-
-                <div className="flex items-center gap-1 rounded-lg bg-red-600 px-2 py-1">
-                  <Star size={13} className="fill-white text-white" />
-                  <span className="text-xs font-semibold text-white">
+                <span className="truncate">{movie.title}</span>
+                <span className="flex items-center gap-2 shrink-0 text-xs text-zinc-500">
+                  <span>{movie.year}</span>
+                  <span className="flex items-center gap-0.5 text-red-500">
+                    <Star size={11} className="fill-red-500" />
                     {movie.rating}
                   </span>
-                </div>
+                </span>
               </li>
             ))
           ) : (
-            <li className="flex flex-col items-center gap-2 px-4 py-6 text-zinc-500">
-              <Search size={20} />
-              <span className="text-sm">Film tidak ditemukan</span>
+            <li className="px-4 py-2 text-zinc-500 italic text-sm">
+              Film tidak ditemukan...
             </li>
           )}
         </ul>
