@@ -9,7 +9,10 @@ import {
   ArrowLeft,
   Play,
   Clapperboard,
+  Heart,
+  Bookmark,
 } from "lucide-react";
+import useFavorites from "../hooks/useFavorites";
 import Navbar from "../components/Navbar";
 import HeroBanner from "../components/HeroBanner";
 import WatchProviders from "../components/WatchProviders";
@@ -20,6 +23,7 @@ import CastList from "../components/CastList";
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
 
   const {
     movieDetail,
@@ -106,6 +110,30 @@ export default function MovieDetail() {
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "N/A";
   const hasTrailer = Boolean(movieTrailer?.key);
 
+  const favorited = movie ? isFavorite(movie.id) : false;
+
+  const handleFavoriteClick = () => {
+    if (favorited) {
+      removeFavorite(movie.id);
+    } else {
+      addFavorite({
+        id: movie.id,
+        title: movie.title,
+        image: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : null,
+        rating: movie.vote_average
+          ? Number(movie.vote_average.toFixed(1))
+          : null,
+        year: releaseYear,
+      });
+    }
+  };
+
+  const handleWatchlistClick = () => {
+    alert("Fitur Watchlist segera hadir!");
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
@@ -127,7 +155,7 @@ export default function MovieDetail() {
             </h1>
 
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex gap-3">
+              <div className="flex gap-2.5 sm:gap-3">
                 <button
                   onClick={() => setShowWatchModal(true)}
                   className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03] shadow-lg shadow-red-600/20"
@@ -135,6 +163,7 @@ export default function MovieDetail() {
                   <Play size={18} className="fill-white" />
                   Tonton
                 </button>
+
                 <button
                   onClick={() => hasTrailer && setIsPlayingTrailer(true)}
                   disabled={!hasTrailer}
@@ -148,7 +177,33 @@ export default function MovieDetail() {
                   }`}
                 >
                   <Clapperboard size={18} />
-                  Trailer
+                  <span className="hidden sm:inline">Trailer</span>
+                </button>
+
+                <button
+                  onClick={handleFavoriteClick}
+                  title={
+                    favorited ? "Hapus dari favorite" : "Tambah ke favorite"
+                  }
+                  aria-label={
+                    favorited ? "Hapus dari favorite" : "Tambah ke favorite"
+                  }
+                  className={`shrink-0 flex items-center justify-center w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full border transition-all active:scale-90 ${
+                    favorited
+                      ? "bg-red-600 border-red-600 text-white shadow-lg shadow-red-600/20"
+                      : "bg-white/10 hover:bg-white/20 border-white/15 backdrop-blur-md text-white lg:hover:scale-[1.03]"
+                  }`}
+                >
+                  <Heart size={19} className={favorited ? "fill-white" : ""} />
+                </button>
+
+                <button
+                  onClick={handleWatchlistClick}
+                  title="Watchlist (segera hadir)"
+                  aria-label="Tambah ke watchlist"
+                  className="shrink-0 flex items-center justify-center w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full border bg-white/5 hover:bg-white/10 border-white/10 backdrop-blur-md text-zinc-400 transition-all active:scale-90"
+                >
+                  <Bookmark size={19} />
                 </button>
               </div>
 
@@ -267,6 +322,7 @@ export default function MovieDetail() {
                     decoding="async"
                     className="w-full rounded-xl shadow-2xl border border-zinc-800"
                   />
+
                   <button
                     onClick={() => setShowWatchModal(true)}
                     className="w-full mt-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
@@ -274,6 +330,31 @@ export default function MovieDetail() {
                     <Play size={20} fill="white" />
                     Tonton Sekarang
                   </button>
+
+                  <div className="flex gap-2.5 mt-2.5">
+                    <button
+                      onClick={handleFavoriteClick}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm transition-all active:scale-95 border ${
+                        favorited
+                          ? "bg-red-600/15 border-red-600/40 text-red-400"
+                          : "bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300"
+                      }`}
+                    >
+                      <Heart
+                        size={15}
+                        className={favorited ? "fill-red-400" : ""}
+                      />
+                      {favorited ? "Favorit" : "Favorit"}
+                    </button>
+
+                    <button
+                      onClick={handleWatchlistClick}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 transition-all active:scale-95"
+                    >
+                      <Bookmark size={15} />
+                      Watchlist
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
