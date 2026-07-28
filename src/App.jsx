@@ -6,6 +6,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Movies = lazy(() => import("./pages/Movies"));
 const MovieDetail = lazy(() => import("./pages/MovieDetail"));
 const SearchResult = lazy(() => import("./pages/SearchResult"));
+const Profile = lazy(() => import("./pages/Profile"));
 
 function PageFallback() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/movies" element={<Movies />} />
         <Route path="/movie/:id" element={<MovieDetail />} />
         <Route path="/search" element={<SearchResult />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Suspense>
   );
