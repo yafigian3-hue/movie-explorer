@@ -3,8 +3,8 @@ import { API_URL } from "../config/api";
 
 export default function useFavorites() {
   const [favorites, setFavorites] = useState([]);
-const [isLoading, setIsLoading] = useState(false);
-const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const fetchFavorites = useCallback(async () => {
     setIsLoading(true);
@@ -24,7 +24,7 @@ const [isSaving, setIsSaving] = useState(false);
   }, [fetchFavorites]);
 
   const addFavorite = useCallback(async (movie) => {
-  setIsSaving(true);
+    setIsSaving(true);
     try {
       const response = await fetch(`${API_URL}/favorites`, {
         method: "POST",
@@ -53,7 +53,7 @@ const [isSaving, setIsSaving] = useState(false);
   }, []);
 
   const removeFavorite = useCallback(async (id) => {
-  setIsSaving(true);
+    setIsSaving(true);
     try {
       await fetch(`${API_URL}/favorites/${id}`, { method: "DELETE" });
       setFavorites((prev) => prev.filter((f) => f.id !== id));

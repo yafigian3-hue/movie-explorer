@@ -2,6 +2,7 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import MovieCard from "../components/MovieCard";
 import useFavorites from "../hooks/useFavorites";
+import useWatchlist from "../hooks/useWatchlist";
 import { User, Heart, Clock, Bookmark, Sparkles, Loader2 } from "lucide-react";
 
 const TABS = [
@@ -62,6 +63,49 @@ function FavoriteGrid() {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
       {favorites.map((movie) => (
+        <MovieCard key={movie.id} movie={movie} />
+      ))}
+    </div>
+  );
+}
+
+function WatchlistGrid() {
+  const { watchlist, isLoading } = useWatchlist();
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div
+            key={i}
+            className="aspect-[2/3.4] rounded-xl bg-zinc-900 border border-zinc-800 animate-pulse"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (watchlist.length === 0) {
+    return (
+      <div className="py-16 sm:py-24 flex flex-col items-center text-center">
+        <div className="mb-5 p-5 bg-zinc-900 border border-zinc-800 rounded-2xl">
+          <Bookmark size={30} className="text-zinc-600" />
+        </div>
+
+        <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
+          Belum Ada Watchlist
+        </h3>
+
+        <p className="text-zinc-500 text-sm max-w-xs">
+          Tambahkan film ke watchlist agar bisa ditonton nanti.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
+      {watchlist.map((movie) => (
         <MovieCard key={movie.id} movie={movie} />
       ))}
     </div>
@@ -132,7 +176,7 @@ export default function Profile() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === "favorites" && <FavoriteGrid />}
         {activeTab === "history" && <ComingSoon label="Riwayat" />}
-        {activeTab === "watchlist" && <ComingSoon label="Watchlist" />}
+        {activeTab === "watchlist" && <WatchlistGrid />}
       </main>
     </div>
   );
