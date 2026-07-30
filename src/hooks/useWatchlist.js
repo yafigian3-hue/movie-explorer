@@ -12,6 +12,7 @@ export default function useWatchlist() {
     try {
       const response = await fetch(`${API_URL}/watchlist`);
       const data = await response.json();
+
       setWatchlist(data);
     } catch (error) {
       console.error("Gagal mengambil watchlist:", error);
@@ -55,9 +56,13 @@ export default function useWatchlist() {
     setIsSaving(true);
 
     try {
-      await fetch(`${API_URL}/watchlist/${id}`, {
+      const response = await fetch(`${API_URL}/watchlist/${id}`, {
         method: "DELETE",
       });
+
+      if (!response.ok) {
+        throw new Error("Gagal menghapus watchlist");
+      }
 
       setWatchlist((prev) => prev.filter((movie) => movie.id !== id));
     } catch (error) {
@@ -79,5 +84,6 @@ export default function useWatchlist() {
     addWatchlist,
     removeWatchlist,
     isInWatchlist,
+    fetchWatchlist,
   };
 }

@@ -13,6 +13,7 @@ import {
   Bookmark,
 } from "lucide-react";
 import useFavorites from "../hooks/useFavorites";
+import useWatchlist from "../hooks/useWatchlist";
 import Navbar from "../components/Navbar";
 import HeroBanner from "../components/HeroBanner";
 import WatchProviders from "../components/WatchProviders";
@@ -23,7 +24,15 @@ import CastList from "../components/CastList";
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+
   const { addFavorite, removeFavorite, isFavorite, isSaving } = useFavorites();
+
+  const {
+    addWatchlist,
+    removeWatchlist,
+    isInWatchlist,
+    isSaving: isSavingWatchlist,
+  } = useWatchlist();
 
   const {
     movieDetail,
@@ -112,6 +121,8 @@ export default function MovieDetail() {
 
   const favorited = movie ? isFavorite(movie.id) : false;
 
+  const watchlisted = movie ? isInWatchlist(movie.id) : false;
+
   const handleFavoriteClick = () => {
     if (favorited) {
       removeFavorite(movie.id);
@@ -131,7 +142,21 @@ export default function MovieDetail() {
   };
 
   const handleWatchlistClick = () => {
-    alert("Fitur Watchlist segera hadir!");
+    if (watchlisted) {
+      removeWatchlist(movie.id);
+    } else {
+      addWatchlist({
+        id: movie.id,
+        title: movie.title,
+        image: movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : null,
+        rating: movie.vote_average
+          ? Number(movie.vote_average.toFixed(1))
+          : null,
+        year: releaseYear,
+      });
+    }
   };
 
   return (
@@ -216,11 +241,24 @@ export default function MovieDetail() {
 
                 <button
                   onClick={handleWatchlistClick}
-                  title="Watchlist (segera hadir)"
-                  aria-label="Tambah ke watchlist"
-                  className="shrink-0 flex items-center justify-center w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-full border bg-white/5 hover:bg-white/10 border-white/10 backdrop-blur-md text-zinc-400 transition-all active:scale-90"
+                  disabled={isSavingWatchlist}
+                  title={
+                    watchlisted ? "Hapus dari watchlist" : "Tambah ke watchlist"
+                  }
+                  className={`shrink-0 flex items-center justify-center w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-full border transition-all duration-300 active:scale-90 ${
+                    watchlisted
+                      ? "bg-red-600 border-red-600 shadow-lg shadow-red-600/30"
+                      : "bg-white/10 hover:bg-white/20 border-white/15 text-zinc-300"
+                  } ${isSavingWatchlist ? "opacity-60 cursor-not-allowed" : ""}`}
                 >
-                  <Bookmark size={18} />
+                  {isSavingWatchlist ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Bookmark
+                      size={18}
+                      className={watchlisted ? "fill-white" : ""}
+                    />
+                  )}
                 </button>
               </div>
 
@@ -351,29 +389,43 @@ export default function MovieDetail() {
                   <div className="flex gap-2.5 mt-2.5">
                     <button
                       onClick={handleFavoriteClick}
+                      disabled={isSaving}
                       className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm transition-all duration-300 active:scale-95 border ${
                         favorited
                           ? "bg-red-600/15 border-red-600/40 text-red-400 hover:bg-red-600/25"
                           : "bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300 hover:border-zinc-700"
                       }`}
                     >
-                      <Heart
-                        size={15}
-                        className={`transition-all duration-300 ${
-                          favorited
-                            ? "fill-red-400 text-red-400"
-                            : "text-zinc-300"
-                        }`}
-                      />
+                      {isSaving ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Heart
+                          size={15}
+                          className={favorited ? "fill-current" : ""}
+                        />
+                      )}
                       Favorit
                     </button>
 
                     <button
                       onClick={handleWatchlistClick}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-300 transition-all duration-300 active:scale-95"
+                      disabled={isSavingWatchlist}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm transition-all duration-300 active:scale-95 border ${
+                        watchlisted
+                          ? "bg-red-600/15 border-red-600/40 text-red-400 hover:bg-red-600/25"
+                          : "bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300 hover:border-zinc-700"
+                      }`}
                     >
-                      <Bookmark size={15} />
-                      Watchlist
+                      {isSavingWatchlist ? (
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Bookmark
+                          size={15}
+                          className={watchlisted ? "fill-current" : ""}
+                        />
+                      )}
+
+                      {watchlisted ? "Tersimpan" : "Watchlist"}
                     </button>
                   </div>
                 </div>
