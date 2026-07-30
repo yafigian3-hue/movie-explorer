@@ -23,7 +23,7 @@ import CastList from "../components/CastList";
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+  const { addFavorite, removeFavorite, isFavorite, isSaving } = useFavorites();
 
   const {
     movieDetail,
@@ -155,13 +155,13 @@ export default function MovieDetail() {
             </h1>
 
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowWatchModal(true)}
-                  className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03] shadow-lg shadow-red-600/20"
+                  className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 sm:px-6 h-11 sm:h-[52px] rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03] shadow-lg shadow-red-600/20"
                 >
-                  <Play size={18} className="fill-white" />
-                  Tonton
+                  <Play size={17} className="fill-white shrink-0" />
+                  <span className="truncate">Tonton</span>
                 </button>
 
                 <button
@@ -170,40 +170,57 @@ export default function MovieDetail() {
                   title={
                     hasTrailer ? "Putar trailer" : "Trailer tidak tersedia"
                   }
-                  className={`flex-1 lg:flex-none flex items-center justify-center gap-2 border text-white px-5 sm:px-6 py-3 rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 ${
+                  aria-label="Putar trailer"
+                  className={`shrink-0 flex items-center justify-center w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-full border transition-all duration-300 active:scale-90 ${
                     hasTrailer
                       ? "bg-white/10 hover:bg-white/20 border-white/15 backdrop-blur-md lg:hover:scale-[1.03]"
                       : "bg-white/5 border-white/10 text-zinc-500 cursor-not-allowed"
                   }`}
                 >
                   <Clapperboard size={18} />
-                  <span className="hidden sm:inline">Trailer</span>
                 </button>
 
                 <button
                   onClick={handleFavoriteClick}
+                  disabled={isSaving}
                   title={
                     favorited ? "Hapus dari favorite" : "Tambah ke favorite"
                   }
                   aria-label={
                     favorited ? "Hapus dari favorite" : "Tambah ke favorite"
                   }
-                  className={`shrink-0 flex items-center justify-center w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full border transition-all active:scale-90 ${
+                  className={`group shrink-0 relative flex items-center justify-center w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-full border transition-all duration-300 active:scale-90 overflow-hidden ${
+                    isSaving ? "opacity-60 cursor-not-allowed" : ""
+                  } ${
                     favorited
-                      ? "bg-red-600 border-red-600 text-white shadow-lg shadow-red-600/20"
-                      : "bg-white/10 hover:bg-white/20 border-white/15 backdrop-blur-md text-white lg:hover:scale-[1.03]"
+                      ? "bg-red-600 border-red-600 shadow-lg shadow-red-600/30"
+                      : "bg-white/10 hover:bg-white/20 border-white/15 backdrop-blur-md lg:hover:scale-[1.03]"
                   }`}
                 >
-                  <Heart size={19} className={favorited ? "fill-white" : ""} />
+                  {isSaving ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      {favorited && (
+                        <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-20" />
+                      )}
+                      <Heart
+                        size={18}
+                        className={`relative transition-transform duration-300 ${
+                          favorited ? "fill-white scale-110" : ""
+                        }`}
+                      />
+                    </>
+                  )}
                 </button>
 
                 <button
                   onClick={handleWatchlistClick}
                   title="Watchlist (segera hadir)"
                   aria-label="Tambah ke watchlist"
-                  className="shrink-0 flex items-center justify-center w-12 h-12 sm:w-[52px] sm:h-[52px] rounded-full border bg-white/5 hover:bg-white/10 border-white/10 backdrop-blur-md text-zinc-400 transition-all active:scale-90"
+                  className="shrink-0 flex items-center justify-center w-11 h-11 sm:w-[52px] sm:h-[52px] rounded-full border bg-white/5 hover:bg-white/10 border-white/10 backdrop-blur-md text-zinc-400 transition-all active:scale-90"
                 >
-                  <Bookmark size={19} />
+                  <Bookmark size={18} />
                 </button>
               </div>
 
@@ -334,22 +351,26 @@ export default function MovieDetail() {
                   <div className="flex gap-2.5 mt-2.5">
                     <button
                       onClick={handleFavoriteClick}
-                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm transition-all active:scale-95 border ${
+                      className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm transition-all duration-300 active:scale-95 border ${
                         favorited
-                          ? "bg-red-600/15 border-red-600/40 text-red-400"
-                          : "bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300"
+                          ? "bg-red-600/15 border-red-600/40 text-red-400 hover:bg-red-600/25"
+                          : "bg-zinc-900 hover:bg-zinc-800 border-zinc-800 text-zinc-300 hover:border-zinc-700"
                       }`}
                     >
                       <Heart
                         size={15}
-                        className={favorited ? "fill-red-400" : ""}
+                        className={`transition-all duration-300 ${
+                          favorited
+                            ? "fill-red-400 text-red-400"
+                            : "text-zinc-300"
+                        }`}
                       />
-                      {favorited ? "Favorit" : "Favorit"}
+                      Favorit
                     </button>
 
                     <button
                       onClick={handleWatchlistClick}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 transition-all active:scale-95"
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-medium text-sm bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-300 transition-all duration-300 active:scale-95"
                     >
                       <Bookmark size={15} />
                       Watchlist

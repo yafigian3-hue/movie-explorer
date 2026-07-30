@@ -3,7 +3,8 @@ import { API_URL } from "../config/api";
 
 export default function useFavorites() {
   const [favorites, setFavorites] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+const [isSaving, setIsSaving] = useState(false);
 
   const fetchFavorites = useCallback(async () => {
     setIsLoading(true);
@@ -23,6 +24,7 @@ export default function useFavorites() {
   }, [fetchFavorites]);
 
   const addFavorite = useCallback(async (movie) => {
+  setIsSaving(true);
     try {
       const response = await fetch(`${API_URL}/favorites`, {
         method: "POST",
@@ -45,15 +47,20 @@ export default function useFavorites() {
       setFavorites((prev) => [...prev, newFavorite]);
     } catch (err) {
       console.error("Gagal menambah favorite:", err);
+    } finally {
+      setIsSaving(false);
     }
   }, []);
 
   const removeFavorite = useCallback(async (id) => {
+  setIsSaving(true);
     try {
       await fetch(`${API_URL}/favorites/${id}`, { method: "DELETE" });
       setFavorites((prev) => prev.filter((f) => f.id !== id));
     } catch (err) {
       console.error("Gagal menghapus favorite:", err);
+    } finally {
+      setIsSaving(false);
     }
   }, []);
 
@@ -62,5 +69,12 @@ export default function useFavorites() {
     [favorites],
   );
 
-  return { favorites, isLoading, addFavorite, removeFavorite, isFavorite };
+  return {
+    favorites,
+    isLoading,
+    isSaving,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
+  };
 }
