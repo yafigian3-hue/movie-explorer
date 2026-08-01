@@ -16,6 +16,7 @@ import useFavorites from "../hooks/useFavorites";
 import useWatchlist from "../hooks/useWatchlist";
 import Navbar from "../components/Navbar";
 import HeroBanner from "../components/HeroBanner";
+import useHistory from "../hooks/useHistory";
 import WatchProviders from "../components/WatchProviders";
 import useSearch from "../context/useSearch";
 import MovieSection from "../components/MovieSection";
@@ -24,6 +25,8 @@ import CastList from "../components/CastList";
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { addHistory } = useHistory();
 
   const { addFavorite, removeFavorite, isFavorite, isSaving } = useFavorites();
 
@@ -159,6 +162,30 @@ export default function MovieDetail() {
     }
   };
 
+  const saveToHistory = async () => {
+    await addHistory({
+      id: movie.id,
+      title: movie.title,
+      image: movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : null,
+      rating: movie.vote_average ? Number(movie.vote_average.toFixed(1)) : null,
+      year: releaseYear,
+    });
+  };
+  
+  const handleWatchMovie = async () => {
+    await saveToHistory();
+    setShowWatchModal(true);
+  };
+
+  const handlePlayTrailer = async () => {
+    if (!hasTrailer) return;
+
+    await saveToHistory();
+    setIsPlayingTrailer(true);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <Navbar />
@@ -182,7 +209,7 @@ export default function MovieDetail() {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="grid grid-cols-[1fr_auto_auto_auto] gap-2 sm:gap-3">
                 <button
-                  onClick={() => setShowWatchModal(true)}
+                  onClick={handleWatchMovie}
                   className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-4 sm:px-6 h-11 sm:h-[52px] rounded-full font-semibold text-sm sm:text-base transition-all active:scale-95 lg:hover:scale-[1.03] shadow-lg shadow-red-600/20"
                 >
                   <Play size={17} className="fill-white shrink-0" />
@@ -190,7 +217,7 @@ export default function MovieDetail() {
                 </button>
 
                 <button
-                  onClick={() => hasTrailer && setIsPlayingTrailer(true)}
+                  onClick={handlePlayTrailer}
                   disabled={!hasTrailer}
                   title={
                     hasTrailer ? "Putar trailer" : "Trailer tidak tersedia"
@@ -379,7 +406,7 @@ export default function MovieDetail() {
                   />
 
                   <button
-                    onClick={() => setShowWatchModal(true)}
+                    onClick={handleWatchMovie}
                     className="w-full mt-4 py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-full transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
                   >
                     <Play size={20} fill="white" />
