@@ -6,8 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { GENRES } from "../utils/genres";
 import { PLACEHOLDER_IMAGE } from "../utils/placeholder";
 
-function MovieCard({ movie }) {
-
+function MovieCard({ movie, subtitle = null }) {
   const imageSrc = movie.image || movie.poster_path || PLACEHOLDER_IMAGE;
   const title = movie.title || "Untitled Movie";
   const rating = movie.rating ?? movie.vote_average ?? "N/A";
@@ -73,13 +72,13 @@ function MovieCard({ movie }) {
             </p>
           )}
 
-          <div className="flex items-center justify-between mt-3 sm:mt-4 pt-3 border-t border-zinc-800">
-            {year && (
-              <span className="text-zinc-400 text-xs sm:text-sm">{year}</span>
-            )}
+          <div className="flex items-center justify-between gap-2 mt-3 sm:mt-4 pt-3 border-t border-zinc-800">
+            <span className="text-zinc-400 text-xs sm:text-sm truncate flex-1">
+              {subtitle || year}
+            </span>
 
             <button
-              className="text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold transition-all duration-300 hover:gap-2 flex items-center gap-1"
+              className="shrink-0 text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold transition-all duration-300 hover:gap-2 flex items-center gap-1"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/movie/${movie.id}`);

@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import MovieCard from "../components/MovieCard";
 import useFavorites from "../hooks/useFavorites";
 import useWatchlist from "../hooks/useWatchlist";
+import useHistory from "../hooks/useHistory";
 import { User, Heart, Clock, Bookmark, Sparkles, Loader2 } from "lucide-react";
 
 const TABS = [
@@ -112,6 +113,40 @@ function WatchlistGrid() {
   );
 }
 
+function formatViewedAt(date) {
+  const viewedDate = new Date(date);
+  const now = new Date();
+
+  const diff = now - viewedDate;
+
+  const minutes = Math.floor(diff / 1000 / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (minutes < 1) return "Baru saja";
+  if (minutes < 60) return `${minutes} menit lalu`;
+  if (hours < 24) return `${hours} jam lalu`;
+  if (days < 7) return `${days} hari lalu`;
+
+  return viewedDate.toLocaleDateString("id-ID");
+}
+
+function HistoryGrid() {
+  const { history, isLoading } = useHistory();
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
+      {history.map((movie) => (
+        <MovieCard
+          key={movie.id}
+          movie={movie}
+          subtitle={formatViewedAt(movie.viewedAt)}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("favorites");
   const { favorites, isLoading } = useFavorites();
@@ -175,7 +210,7 @@ export default function Profile() {
       {/* Konten tab */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === "favorites" && <FavoriteGrid />}
-        {activeTab === "history" && <ComingSoon label="Riwayat" />}
+        {activeTab === "history" && <HistoryGrid />}{" "}
         {activeTab === "watchlist" && <WatchlistGrid />}
       </main>
     </div>
