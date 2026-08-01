@@ -140,6 +140,7 @@ export default function MovieDetail() {
           ? Number(movie.vote_average.toFixed(1))
           : null,
         year: releaseYear,
+        genre_ids: movie.genres?.map((g) => g.id) ?? [],
       });
     }
   };
@@ -158,6 +159,7 @@ export default function MovieDetail() {
           ? Number(movie.vote_average.toFixed(1))
           : null,
         year: releaseYear,
+        genreIds: movie.genres?.map((g) => g.id) ?? [],
       });
     }
   };
@@ -171,9 +173,10 @@ export default function MovieDetail() {
         : null,
       rating: movie.vote_average ? Number(movie.vote_average.toFixed(1)) : null,
       year: releaseYear,
+      genreIds: movie.genres?.map((g) => g.id) ?? [],
     });
   };
-  
+
   const handleWatchMovie = async () => {
     await saveToHistory();
     setShowWatchModal(true);

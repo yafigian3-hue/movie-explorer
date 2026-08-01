@@ -35,6 +35,7 @@ export default function useFavorites() {
           image: movie.image,
           rating: movie.rating,
           year: movie.year,
+          genreIds: movie.genre_ids ?? [],
         }),
       });
 

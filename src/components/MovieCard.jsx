@@ -16,7 +16,7 @@ function MovieCard({ movie, subtitle = null }) {
   const navigate = useNavigate();
 
   const genres =
-    movie.genre_ids
+    (movie.genre_ids || movie.genreIds)
       ?.slice(0, 2)
       .map((id) => GENRES[id])
       .filter(Boolean)
