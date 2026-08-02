@@ -47,9 +47,22 @@ export default function useHistory() {
     }
   }, []);
 
+  const deleteAllHistory = useCallback(async () => {
+    try {
+      await fetch(`${API_URL}/history`, {
+        method: "DELETE",
+      });
+
+      setHistory([]);
+    } catch (error) {
+      console.error("Gagal menghapus history:", error);
+    }
+  }, []);
+
   return {
     history,
     isLoading,
     addHistory,
+    deleteAllHistory,
   };
 }
