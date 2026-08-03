@@ -104,11 +104,13 @@ export default function HeroBanner({
   const showSlider = !isDetail && heroMovies.length > 1;
   const showingTrailer = isPlayingTrailer && Boolean(movieTrailer);
 
+  // Tinggi dikurangi khusus di mobile — rasio container yang terlalu
+  // tinggi & sempit memaksa object-cover crop habis kiri-kanan gambar.
   const heightClass = isDetail
-    ? "h-[42vh] sm:h-[52vh] lg:h-[62vh]"
+    ? "h-[36vh] sm:h-[52vh] lg:h-[62vh]"
     : isCompact
-      ? "h-[65vh] sm:h-[75vh] lg:h-[85vh]"
-      : "h-screen"; 
+      ? "h-[52vh] sm:h-[75vh] lg:h-[85vh]"
+      : "h-[58vh] sm:h-[80vh] lg:h-screen";
 
   return (
     <section
@@ -130,8 +132,14 @@ export default function HeroBanner({
           <>
             <img
               src={`https://image.tmdb.org/t/p/original${currentMovie.backdrop_path}`}
+              srcSet={`
+                https://image.tmdb.org/t/p/w780${currentMovie.backdrop_path} 780w,
+                https://image.tmdb.org/t/p/w1280${currentMovie.backdrop_path} 1280w,
+                https://image.tmdb.org/t/p/original${currentMovie.backdrop_path} 1920w
+              `}
+              sizes="100vw"
               alt={currentMovie.title}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-cover object-[center_22%] sm:object-center"
               style={{
                 animation: `heroKenBurns ${AUTOPLAY_MS * 1.6}ms ease-out forwards`,
               }}
@@ -141,7 +149,7 @@ export default function HeroBanner({
                 isDetail ? "via-zinc-950/70" : "via-zinc-950/50"
               }`}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/20 sm:via-zinc-950/10 to-transparent" />
           </>
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-zinc-800 to-zinc-950" />
@@ -150,7 +158,7 @@ export default function HeroBanner({
 
       {showingTrailer && (
         <div
-          className="absolute inset-0 bg-black transition-opacity duration-500 ease-out"
+          className="absolute inset-0 bg-black transition-opacity duration-500 ease-out z-40"
           style={{ opacity: trailerEntered ? 1 : 0 }}
         >
           {!videoReady && (
@@ -184,24 +192,26 @@ export default function HeroBanner({
           <button
             onClick={prevMovie}
             aria-label="Film sebelumnya"
-            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-30 bg-black/30 backdrop-blur-md hover:bg-red-600 text-white p-2.5 sm:p-3 rounded-full opacity-60 sm:opacity-0 sm:group-hover/hero:opacity-100 transition-all duration-300"
+            className="absolute left-2 sm:left-5 top-1/2 -translate-y-1/2 z-30 bg-black/30 backdrop-blur-md hover:bg-red-600 text-white p-2 sm:p-3 rounded-full opacity-70 sm:opacity-0 sm:group-hover/hero:opacity-100 transition-all duration-300"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} className="sm:hidden" />
+            <ChevronLeft size={20} className="hidden sm:block" />
           </button>
           <button
             onClick={nextMovie}
             aria-label="Film berikutnya"
-            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-30 bg-black/30 backdrop-blur-md hover:bg-red-600 text-white p-2.5 sm:p-3 rounded-full opacity-60 sm:opacity-0 sm:group-hover/hero:opacity-100 transition-all duration-300"
+            className="absolute right-2 sm:right-5 top-1/2 -translate-y-1/2 z-30 bg-black/30 backdrop-blur-md hover:bg-red-600 text-white p-2 sm:p-3 rounded-full opacity-70 sm:opacity-0 sm:group-hover/hero:opacity-100 transition-all duration-300"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} className="sm:hidden" />
+            <ChevronRight size={20} className="hidden sm:block" />
           </button>
         </>
       )}
 
       {!isDetail && (
         <div
-          className={`relative z-10 flex h-full flex-col justify-end px-5 sm:px-10 lg:px-16 ${
-            isCompact ? "pb-10 sm:pb-10" : "pb-16 sm:pb-14"
+          className={`relative z-10 flex h-full flex-col justify-end px-4 sm:px-10 lg:px-16 ${
+            isCompact ? "pb-8 sm:pb-10" : "pb-10 sm:pb-14"
           }`}
         >
           <div
@@ -211,7 +221,7 @@ export default function HeroBanner({
               transform: entered ? "translateY(0)" : "translateY(20px)",
             }}
           >
-            <div className="mb-3 sm:mb-4 flex flex-wrap items-center gap-2.5">
+            <div className="mb-2.5 sm:mb-4 flex flex-wrap items-center gap-2 sm:gap-2.5">
               {currentMovie.vote_average > 0 && (
                 <div className="flex items-center gap-1 bg-red-600 px-2.5 py-1 rounded-full">
                   <Star size={12} className="fill-white text-white" />
@@ -228,10 +238,10 @@ export default function HeroBanner({
             </div>
 
             <h1
-              className={`font-bold text-white mb-3 leading-[1.1] tracking-tight drop-shadow-lg ${
+              className={`font-bold text-white mb-2.5 sm:mb-3 leading-[1.1] tracking-tight drop-shadow-lg ${
                 isCompact
-                  ? "text-2xl sm:text-3xl lg:text-5xl"
-                  : "text-3xl sm:text-4xl lg:text-6xl"
+                  ? "text-xl sm:text-3xl lg:text-5xl"
+                  : "text-2xl sm:text-4xl lg:text-6xl"
               }`}
             >
               {currentMovie.title}
@@ -243,31 +253,31 @@ export default function HeroBanner({
               </p>
             )}
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2.5 sm:gap-3">
               <button
                 onClick={() => navigate(`/movie/${currentMovie.id}`)}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20"
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 py-2 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20"
               >
-                <Play size={17} className="fill-white" /> Tonton
+                <Play size={16} className="fill-white" /> Tonton
               </button>
               <button
                 onClick={() => navigate(`/movie/${currentMovie.id}`)}
-                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-6 py-2.5 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95"
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-5 py-2 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95"
               >
-                <Info size={17} /> Info
+                <Info size={16} /> Info
               </button>
             </div>
           </div>
 
           {showSlider && (
-            <div className="mt-6 sm:mt-8 flex gap-2">
+            <div className="mt-5 sm:mt-8 flex gap-1.5 sm:gap-2">
               {heroMovies.map((m, index) => (
                 <button
                   key={m.id ?? index}
                   onClick={() => goTo(index)}
                   aria-label={`Ke slide ${index + 1}`}
                   className={`h-1.5 rounded-full bg-white/20 overflow-hidden transition-all duration-300 ${
-                    index === currentIndex ? "w-8 sm:w-10" : "w-3"
+                    index === currentIndex ? "w-7 sm:w-10" : "w-2.5 sm:w-3"
                   }`}
                 >
                   {index === currentIndex && showProgress && (
