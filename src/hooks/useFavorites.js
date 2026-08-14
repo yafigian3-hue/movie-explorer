@@ -1,72 +1,125 @@
 import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "../config/api";
+import { useAuth } from "../context/AuthContext";
+import { getAuthHeaders } from "../utils/auth";
 
 export default function useFavorites() {
+  const { token } = useAuth();
+
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchFavorites = useCallback(async () => {
+    if (!token) {
+      setFavorites([]);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
+
     try {
-      const response = await fetch(`${API_URL}/favorites`);
+      const response = await fetch(`${API_URL}/favorites`, {
+        headers: getAuthHeaders(token),
+      });
+
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Gagal mengambil favorite");
+      }
+
       setFavorites(data);
     } catch (err) {
       console.error("Gagal mengambil favorite:", err);
+      setFavorites([]);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     fetchFavorites();
   }, [fetchFavorites]);
 
-  const addFavorite = useCallback(async (movie) => {
-    setIsSaving(true);
-    try {
-      const response = await fetch(`${API_URL}/favorites`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: movie.id,
-          title: movie.title,
-          image: movie.image,
-          rating: movie.rating,
-          year: movie.year,
-          genreIds: movie.genre_ids ?? [],
-        }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message);
+  const addFavorite = useCallback(
+    async (movie) => {
+      if (!token) {
+        console.error("User belum login");
+        return;
       }
 
-      const newFavorite = await response.json();
-      setFavorites((prev) => [...prev, newFavorite]);
-    } catch (err) {
-      console.error("Gagal menambah favorite:", err);
-    } finally {
-      setIsSaving(false);
-    }
-  }, []);
+      setIsSaving(true);
 
-  const removeFavorite = useCallback(async (id) => {
-    setIsSaving(true);
-    try {
-      await fetch(`${API_URL}/favorites/${id}`, { method: "DELETE" });
-      setFavorites((prev) => prev.filter((f) => f.id !== id));
-    } catch (err) {
-      console.error("Gagal menghapus favorite:", err);
-    } finally {
-      setIsSaving(false);
-    }
-  }, []);
+      try {
+        const response = await fetch(`${API_URL}/favorites`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...getAuthHeaders(token),
+          },
+          body: JSON.stringify({
+            id: movie.id,
+            title: movie.title,
+            image: movie.image,
+            rating: movie.rating,
+            year: movie.year,
+            genreIds: movie.genre_ids ?? [],
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Gagal menambah favorite");
+        }
+
+        setFavorites((prev) => [...prev, data]);
+      } catch (err) {
+        console.error("Gagal menambah favorite:", err);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [token],
+  );
+
+  const removeFavorite = useCallback(
+    async (id) => {
+      if (!token) {
+        console.error("User belum login");
+        return;
+      }
+
+      setIsSaving(true);
+
+      try {
+        const response = await fetch(`${API_URL}/favorites/${id}`, {
+          method: "DELETE",
+          headers: getAuthHeaders(token),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Gagal menghapus favorite");
+        }
+
+        setFavorites((prev) =>
+          prev.filter((favorite) => favorite.movieId !== id),
+        );
+      } catch (err) {
+        console.error("Gagal menghapus favorite:", err);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [token],
+  );
 
   const isFavorite = useCallback(
-    (id) => favorites.some((f) => f.id === id),
+    (id) => favorites.some((favorite) => favorite.movieId === id),
     [favorites],
   );
 
