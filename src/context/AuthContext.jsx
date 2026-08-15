@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [authMode, setAuthMode] = useState("login");
   const [loginMessage, setLoginMessage] = useState("");
 
   useEffect(() => {
@@ -58,6 +59,27 @@ export function AuthProvider({ children }) {
     return data;
   };
 
+  const register = async (email, password) => {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Registrasi gagal");
+    }
+
+    return data;
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -70,7 +92,14 @@ export function AuthProvider({ children }) {
   };
 
   const openLogin = (message = "Silakan login untuk melanjutkan.") => {
+    setAuthMode("login");
     setLoginMessage(message);
+    setIsLoginOpen(true);
+  };
+
+  const openRegister = () => {
+    setAuthMode("register");
+    setLoginMessage("");
     setIsLoginOpen(true);
   };
 
@@ -85,11 +114,15 @@ export function AuthProvider({ children }) {
         user,
         token,
         login,
+        register,
         logout,
         isLoginOpen,
+        authMode,
         loginMessage,
         openLogin,
+        openRegister,
         closeLogin,
+        setAuthMode,
       }}
     >
       {children}

@@ -2,10 +2,18 @@ import { useState, useEffect, useCallback } from "react";
 import { X, Loader2, Mail, Lock, Clapperboard } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const CLOSE_DURATION = 200; 
+const CLOSE_DURATION = 200;
 
 export default function LoginModal() {
-  const { isLoginOpen, loginMessage, closeLogin, login } = useAuth();
+  const {
+    isLoginOpen,
+    authMode,
+    loginMessage,
+    closeLogin,
+    login,
+    register,
+    setAuthMode,
+  } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +22,8 @@ export default function LoginModal() {
 
   const [shouldRender, setShouldRender] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     if (isLoginOpen) {
@@ -29,7 +39,6 @@ export default function LoginModal() {
     }
   }, [isLoginOpen, shouldRender]);
 
-  // Kunci scroll body + tutup dengan Escape selama modal terbuka
   useEffect(() => {
     if (!shouldRender) return;
 
@@ -46,6 +55,11 @@ export default function LoginModal() {
     };
   }, [shouldRender, closeLogin]);
 
+  useEffect(() => {
+    setError("");
+    setConfirmPassword("");
+  }, [authMode]);
+
   const handleClose = useCallback(() => {
     closeLogin();
   }, [closeLogin]);
@@ -61,10 +75,26 @@ export default function LoginModal() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      if (authMode === "login") {
+        await login(email, password);
+
+        setEmail("");
+        setPassword("");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        throw new Error("Konfirmasi password tidak cocok.");
+      }
+
+      await register(email, password);
 
       setEmail("");
       setPassword("");
+      setConfirmPassword("");
+
+      setAuthMode("login");
+      setError("");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -93,7 +123,10 @@ export default function LoginModal() {
           from { transform: translateY(0); opacity: 1; }
           to { transform: translateY(24px); opacity: 0; }
         }
-      `}</style>
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateY(-8px); }
+          to { opacity: 1; transform: translateY(0); }
+    }`}</style>
 
       <div
         onClick={(e) => e.stopPropagation()}
@@ -104,7 +137,6 @@ export default function LoginModal() {
         }}
         className="relative w-full sm:max-w-md bg-zinc-900 border border-zinc-800 rounded-t-3xl sm:rounded-2xl shadow-2xl shadow-black/50 max-h-[90vh] overflow-y-auto"
       >
-        {/* Drag handle - mobile only */}
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="h-1 w-10 rounded-full bg-zinc-700" />
         </div>
@@ -124,11 +156,13 @@ export default function LoginModal() {
               <Clapperboard className="text-white" size={22} />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-white">
-              Masuk ke akunmu
+              {authMode === "login" ? "Masuk ke akunmu" : "Buat akun baru"}
             </h2>
             <p className="mt-1.5 text-sm text-zinc-500 max-w-xs">
-              {loginMessage ||
-                "Simpan favorit dan watchlist filmmu di mana saja."}
+              {authMode === "login"
+                ? loginMessage ||
+                  "Simpan favorit dan watchlist filmmu di mana saja."
+                : "Buat akun untuk menyimpan data filmmu."}
             </p>
           </div>
 
@@ -173,6 +207,28 @@ export default function LoginModal() {
               </div>
             </div>
 
+            {authMode === "register" && (
+              <div style={{ animation: "fadeSlideIn 0.25s ease-out" }}>
+                <label className="block mb-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Konfirmasi Password
+                </label>
+                <div className="relative">
+                  <Lock
+                    size={17}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
+                  />
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Ulangi password"
+                    required
+                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                  />
+                </div>
+              </div>
+            )}
+
             {error && (
               <div className="flex items-center gap-2 bg-red-600/10 border border-red-600/30 rounded-xl px-3.5 py-2.5">
                 <p className="text-xs sm:text-sm text-red-400">{error}</p>
@@ -189,11 +245,44 @@ export default function LoginModal() {
                   <Loader2 size={18} className="animate-spin" />
                   Memproses...
                 </>
-              ) : (
+              ) : authMode === "login" ? (
                 "Masuk"
+              ) : (
+                "Daftar"
               )}
             </button>
           </form>
+          <div className="mt-5 text-center text-sm text-zinc-500">
+            {authMode === "login" ? (
+              <>
+                Belum punya akun?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError("");
+                    setAuthMode("register");
+                  }}
+                  className="text-red-500 hover:text-red-400 font-semibold"
+                >
+                  Daftar
+                </button>
+              </>
+            ) : (
+              <>
+                Sudah punya akun?{" "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setError("");
+                    setAuthMode("login");
+                  }}
+                  className="text-red-500 hover:text-red-400 font-semibold"
+                >
+                  Masuk
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
