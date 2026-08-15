@@ -7,6 +7,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
 
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [loginMessage, setLoginMessage] = useState("");
+
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
@@ -16,7 +19,12 @@ export function AuthProvider({ children }) {
     }
 
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (error) {
+        console.error("Gagal membaca data user:", error);
+        localStorage.removeItem("user");
+      }
     }
   }, []);
 
@@ -44,6 +52,9 @@ export function AuthProvider({ children }) {
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
 
+    setIsLoginOpen(false);
+    setLoginMessage("");
+
     return data;
   };
 
@@ -53,6 +64,19 @@ export function AuthProvider({ children }) {
 
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+    setIsLoginOpen(false);
+    setLoginMessage("");
+  };
+
+  const openLogin = (message = "Silakan login untuk melanjutkan.") => {
+    setLoginMessage(message);
+    setIsLoginOpen(true);
+  };
+
+  const closeLogin = () => {
+    setIsLoginOpen(false);
+    setLoginMessage("");
   };
 
   return (
@@ -62,6 +86,10 @@ export function AuthProvider({ children }) {
         token,
         login,
         logout,
+        isLoginOpen,
+        loginMessage,
+        openLogin,
+        closeLogin,
       }}
     >
       {children}

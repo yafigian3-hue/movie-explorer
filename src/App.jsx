@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
+import LoginModal from "./components/LoginModal";
 
 const Home = lazy(() => import("./pages/Home"));
 const Movies = lazy(() => import("./pages/Movies"));
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/search" element={<SearchResult />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
+      <LoginModal />
     </Suspense>
   );
 }

@@ -21,12 +21,14 @@ import WatchProviders from "../components/WatchProviders";
 import useSearch from "../context/useSearch";
 import MovieSection from "../components/MovieSection";
 import CastList from "../components/CastList";
+import { useAuth } from "../context/AuthContext";
 
 export default function MovieDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const { addHistory } = useHistory();
+  const { token, openLogin } = useAuth();
 
   const { addFavorite, removeFavorite, isFavorite, isSaving } = useFavorites();
 
@@ -127,6 +129,11 @@ export default function MovieDetail() {
   const watchlisted = movie ? isInWatchlist(movie.id) : false;
 
   const handleFavoriteClick = () => {
+    if (!token) {
+      openLogin("Silakan login dulu untuk menambahkan film ke Favorite.");
+      return;
+    }
+
     if (favorited) {
       removeFavorite(movie.id);
     } else {
@@ -140,12 +147,17 @@ export default function MovieDetail() {
           ? Number(movie.vote_average.toFixed(1))
           : null,
         year: releaseYear,
-        genre_ids: movie.genres?.map((g) => g.id) ?? [],
+        genre_ids: movie.genres?.map((genre) => genre.id) ?? [],
       });
     }
   };
 
   const handleWatchlistClick = () => {
+    if (!token) {
+      openLogin("Silakan login dulu untuk menambahkan film ke Watchlist.");
+      return;
+    }
+
     if (watchlisted) {
       removeWatchlist(movie.id);
     } else {
@@ -159,7 +171,7 @@ export default function MovieDetail() {
           ? Number(movie.vote_average.toFixed(1))
           : null,
         year: releaseYear,
-        genreIds: movie.genres?.map((g) => g.id) ?? [],
+        genre_ids: movie.genres?.map((genre) => genre.id) ?? [],
       });
     }
   };
