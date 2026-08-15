@@ -59,13 +59,14 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const register = async (email, password) => {
+  const register = async (name, email, password) => {
     const response = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        name,
         email,
         password,
       }),
@@ -120,8 +121,8 @@ export function AuthProvider({ children }) {
         authMode,
         loginMessage,
         openLogin,
-        openRegister,
         closeLogin,
+        openRegister,
         setAuthMode,
       }}
     >

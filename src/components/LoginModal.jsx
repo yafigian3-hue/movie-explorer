@@ -16,6 +16,7 @@ export default function LoginModal() {
   } = useAuth();
 
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -87,14 +88,15 @@ export default function LoginModal() {
         throw new Error("Konfirmasi password tidak cocok.");
       }
 
-      await register(email, password);
+      await register(name, email, password);
 
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
+     setName("");
+     setEmail("");
+     setPassword("");
+     setConfirmPassword("");
 
-      setAuthMode("login");
-      setError("");
+     setAuthMode("login");
+     setError("");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -176,6 +178,22 @@ export default function LoginModal() {
                   size={17}
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
                 />
+                {authMode === "register" && (
+                  <div style={{ animation: "fadeSlideIn 0.25s ease-out" }}>
+                    <label className="block mb-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                      Nama
+                    </label>
+
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Nama kamu"
+                      required
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                    />
+                  </div>
+                )}
                 <input
                   type="email"
                   value={email}

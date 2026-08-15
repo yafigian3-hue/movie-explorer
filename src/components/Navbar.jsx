@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Menu, X, Bell, Clapperboard } from "lucide-react";
 import SearchBar from "./SearchBar";
 import useSearch from "../context/useSearch";
+import { useAuth } from "../context/AuthContext";
 
 const REVEAL_THRESHOLD = 80;
 
@@ -26,6 +27,7 @@ export default function Navbar({ forceVisible = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { clearSearch } = useSearch();
+  const { user, openLogin, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > REVEAL_THRESHOLD);
@@ -96,6 +98,33 @@ export default function Navbar({ forceVisible = false }) {
             >
               <Bell size={18} />
             </button>
+            {user ? (
+              <div className="hidden lg:flex items-center gap-2">
+                <NavLink
+                  to="/profile"
+                  onClick={clearSearch}
+                  className="px-3 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-sm font-medium text-zinc-300 hover:text-white hover:border-zinc-700 transition-colors"
+                >
+                  {user.name}
+                </NavLink>
+
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="px-3 py-2 rounded-full text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/70 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openLogin("Silakan login untuk melanjutkan.")}
+                className="hidden lg:flex px-4 py-2 rounded-full bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-all active:scale-95"
+              >
+                Masuk
+              </button>
+            )}
 
             <button
               onClick={() => setIsOpen((prev) => !prev)}
@@ -131,6 +160,43 @@ export default function Navbar({ forceVisible = false }) {
             >
               Profile
             </NavLink>
+            {user ? (
+              <>
+                <div className="px-4 py-3 border-t border-zinc-800/70 mt-2 pt-3">
+                  <p className="text-xs text-zinc-500 uppercase tracking-wider">
+                    Akun
+                  </p>
+
+                  <p className="text-sm font-semibold text-white mt-1 truncate">
+                    {user.name}
+                  </p>
+
+                  <p className="text-xs text-zinc-500 truncate">{user.email}</p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    setIsOpen(false);
+                  }}
+                  className="w-full px-4 py-2.5 rounded-lg text-left text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-white transition-colors"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  openLogin("Silakan login untuk melanjutkan.");
+                  setIsOpen(false);
+                }}
+                className="w-full px-4 py-2.5 rounded-lg text-left text-sm font-semibold text-white bg-red-600 hover:bg-red-500 transition-colors"
+              >
+                Masuk
+              </button>
+            )}
             <button
               type="button"
               className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-white transition-colors"
