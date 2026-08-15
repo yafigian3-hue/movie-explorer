@@ -7,6 +7,8 @@ import { GENRES } from "../utils/genres";
 import { PLACEHOLDER_IMAGE } from "../utils/placeholder";
 
 function MovieCard({ movie, subtitle = null }) {
+  const movieId = movie.movieId ?? movie.id;
+
   const imageSrc = movie.image || movie.poster_path || PLACEHOLDER_IMAGE;
   const title = movie.title || "Untitled Movie";
   const rating = movie.rating ?? movie.vote_average ?? "N/A";
@@ -28,7 +30,7 @@ function MovieCard({ movie, subtitle = null }) {
         className="relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-600/20 h-full cursor-pointer flex flex-col"
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/movie/${movie.id}`);
+          navigate(`/movie/${movieId}`);
         }}
       >
         <div className="relative w-full aspect-video overflow-hidden bg-zinc-950">
@@ -81,7 +83,7 @@ function MovieCard({ movie, subtitle = null }) {
               className="shrink-0 text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold transition-all duration-300 hover:gap-2 flex items-center gap-1"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/movie/${movie.id}`);
+                navigate(`/movie/${movieId}`);
               }}
             >
               Detail

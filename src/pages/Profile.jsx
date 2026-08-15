@@ -4,6 +4,7 @@ import MovieCard from "../components/MovieCard";
 import useFavorites from "../hooks/useFavorites";
 import useWatchlist from "../hooks/useWatchlist";
 import useHistory from "../hooks/useHistory";
+import { useAuth } from "../context/AuthContext";
 import { User, Heart, Clock, Bookmark, Sparkles, Trash2 } from "lucide-react";
 
 const TABS = [
@@ -171,6 +172,7 @@ function HistoryGrid() {
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("favorites");
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -187,10 +189,11 @@ export default function Profile() {
 
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold truncate">
-              Movie Explorer
+              {user?.name || "Movie Explorer"}
             </h1>
-            <p className="text-zinc-500 text-sm">
-              Belum masuk akun — login segera hadir
+
+            <p className="text-zinc-500 text-sm truncate">
+              {user?.email || "Belum masuk akun — login segera hadir"}
             </p>
           </div>
         </div>
