@@ -1,6 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
-import { X, Loader2, Mail, Lock, Clapperboard } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import {
+  X,
+  Loader2,
+  Mail,
+  Lock,
+  User,
+  Clapperboard,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+} from "lucide-react";
 
 const CLOSE_DURATION = 200;
 
@@ -15,16 +25,18 @@ export default function LoginModal() {
     setAuthMode,
   } = useAuth();
 
-  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const [shouldRender, setShouldRender] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     if (isLoginOpen) {
@@ -58,7 +70,9 @@ export default function LoginModal() {
 
   useEffect(() => {
     setError("");
-    setConfirmPassword("");
+    setSuccessMessage("");
+    setShowPassword(false);
+    setShowConfirmPassword(false);
   }, [authMode]);
 
   const handleClose = useCallback(() => {
@@ -73,14 +87,17 @@ export default function LoginModal() {
     e.preventDefault();
 
     setError("");
+    setSuccessMessage("");
     setIsLoading(true);
 
     try {
       if (authMode === "login") {
         await login(email, password);
-
-        setEmail("");
-        setPassword("");
+        setSuccessMessage("Berhasil masuk! Mengalihkan...");
+        setTimeout(() => {
+          setEmail("");
+          setPassword("");
+        }, 600);
         return;
       }
 
@@ -90,15 +107,14 @@ export default function LoginModal() {
 
       await register(name, email, password);
 
-     setName("");
-     setEmail("");
-     setPassword("");
-     setConfirmPassword("");
-
-     setAuthMode("login");
-     setError("");
-    } catch (error) {
-      setError(error.message);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setSuccessMessage("Akun berhasil dibuat! Silakan masuk dengan akunmu.");
+      setTimeout(() => setAuthMode("login"), 1200);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
@@ -126,9 +142,14 @@ export default function LoginModal() {
           to { transform: translateY(24px); opacity: 0; }
         }
         @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(-8px); }
-          to { opacity: 1; transform: translateY(0); }
-    }`}</style>
+          from { opacity: 0; transform: translateY(-8px); max-height: 0; }
+          to { opacity: 1; transform: translateY(0); max-height: 100px; }
+        }
+        @keyframes popIn {
+          0% { opacity: 0; transform: scale(0.9); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
 
       <div
         onClick={(e) => e.stopPropagation()}
@@ -146,18 +167,22 @@ export default function LoginModal() {
         <button
           type="button"
           onClick={handleClose}
-          aria-label="Tutup login"
+          aria-label="Tutup"
           className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
         >
           <X size={18} />
         </button>
 
         <div className="px-6 sm:px-8 pt-3 sm:pt-8 pb-6 sm:pb-8">
-          <div className="flex flex-col items-center text-center mb-6 sm:mb-7">
+          <div className="flex flex-col items-center text-center mb-6">
             <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-red-600/20">
               <Clapperboard className="text-white" size={22} />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white">
+            <h2
+              key={authMode}
+              style={{ animation: "fadeSlideIn 0.25s ease-out" }}
+              className="text-xl sm:text-2xl font-bold text-white"
+            >
               {authMode === "login" ? "Masuk ke akunmu" : "Buat akun baru"}
             </h2>
             <p className="mt-1.5 text-sm text-zinc-500 max-w-xs">
@@ -168,7 +193,39 @@ export default function LoginModal() {
             </p>
           </div>
 
+          {successMessage && (
+            <div
+              style={{ animation: "popIn 0.25s ease-out" }}
+              className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5"
+            >
+              <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+              <p className="text-sm text-emerald-400">{successMessage}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
+            {authMode === "register" && (
+              <div style={{ animation: "fadeSlideIn 0.25s ease-out" }}>
+                <label className="block mb-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                  Nama
+                </label>
+                <div className="relative">
+                  <User
+                    size={17}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
+                  />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Nama kamu"
+                    required
+                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block mb-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Email
@@ -178,22 +235,6 @@ export default function LoginModal() {
                   size={17}
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
                 />
-                {authMode === "register" && (
-                  <div style={{ animation: "fadeSlideIn 0.25s ease-out" }}>
-                    <label className="block mb-1.5 text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                      Nama
-                    </label>
-
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Nama kamu"
-                      required
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                    />
-                  </div>
-                )}
                 <input
                   type="email"
                   value={email}
@@ -215,13 +256,23 @@ export default function LoginModal() {
                   className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
                 />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukkan password"
                   required
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 pl-10 pr-11 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={
+                    showPassword ? "Sembunyikan password" : "Lihat password"
+                  }
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
               </div>
             </div>
 
@@ -236,19 +287,38 @@ export default function LoginModal() {
                     className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500"
                   />
                   <input
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Ulangi password"
                     required
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 pl-10 pr-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950/60 pl-10 pr-11 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    aria-label={
+                      showConfirmPassword
+                        ? "Sembunyikan password"
+                        : "Lihat password"
+                    }
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={17} />
+                    ) : (
+                      <Eye size={17} />
+                    )}
+                  </button>
                 </div>
               </div>
             )}
 
             {error && (
-              <div className="flex items-center gap-2 bg-red-600/10 border border-red-600/30 rounded-xl px-3.5 py-2.5">
+              <div
+                style={{ animation: "popIn 0.2s ease-out" }}
+                className="flex items-center gap-2 bg-red-600/10 border border-red-600/30 rounded-xl px-3.5 py-2.5"
+              >
                 <p className="text-xs sm:text-sm text-red-400">{error}</p>
               </div>
             )}
@@ -270,16 +340,14 @@ export default function LoginModal() {
               )}
             </button>
           </form>
+
           <div className="mt-5 text-center text-sm text-zinc-500">
             {authMode === "login" ? (
               <>
                 Belum punya akun?{" "}
                 <button
                   type="button"
-                  onClick={() => {
-                    setError("");
-                    setAuthMode("register");
-                  }}
+                  onClick={() => setAuthMode("register")}
                   className="text-red-500 hover:text-red-400 font-semibold"
                 >
                   Daftar
@@ -290,10 +358,7 @@ export default function LoginModal() {
                 Sudah punya akun?{" "}
                 <button
                   type="button"
-                  onClick={() => {
-                    setError("");
-                    setAuthMode("login");
-                  }}
+                  onClick={() => setAuthMode("login")}
                   className="text-red-500 hover:text-red-400 font-semibold"
                 >
                   Masuk

@@ -83,7 +83,7 @@ function MovieCard({ movie, subtitle = null }) {
               className="shrink-0 text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold transition-all duration-300 hover:gap-2 flex items-center gap-1"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/movie/${movieId}`);
+                navigate(`/movie/${movieId}`);  
               }}
             >
               Detail
