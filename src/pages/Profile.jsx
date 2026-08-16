@@ -5,13 +5,36 @@ import useFavorites from "../hooks/useFavorites";
 import useWatchlist from "../hooks/useWatchlist";
 import useHistory from "../hooks/useHistory";
 import { useAuth } from "../context/AuthContext";
-import { User, Heart, Clock, Bookmark, Sparkles, Trash2 } from "lucide-react";
+import {
+  Heart,
+  Clock,
+  Bookmark,
+  Sparkles,
+  Trash2,
+  LogIn,
+  Clapperboard,
+} from "lucide-react";
 
 const TABS = [
   { key: "favorites", label: "Favorite", icon: Heart },
   { key: "history", label: "Riwayat", icon: Clock },
   { key: "watchlist", label: "Watchlist", icon: Bookmark },
 ];
+
+function UserAvatar({ name, size = 20 }) {
+  const initial = name?.charAt(0).toUpperCase() || "?";
+
+  return (
+    <div
+      style={{ width: size, height: size }}
+      className="rounded-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shrink-0 ring-4 ring-zinc-900 shadow-lg shadow-red-600/20"
+    >
+      <span className="font-bold text-white" style={{ fontSize: size * 0.4 }}>
+        {initial}
+      </span>
+    </div>
+  );
+}
 
 function GridSkeleton() {
   return (
@@ -79,7 +102,7 @@ function FavoriteGrid() {
       <SectionHeader
         title="Film Favorit"
         count={favorites.length}
-        unit={favorites.length === 1 ? "film" : "film"}
+        unit="film"
       />
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
         {favorites.map((movie) => (
@@ -170,9 +193,54 @@ function HistoryGrid() {
   );
 }
 
+function LoginGate() {
+  const { openLogin, openRegister } = useAuth();
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 flex flex-col items-center text-center">
+      <div className="mb-6 w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-600/20">
+        <Clapperboard className="text-white" size={30} />
+      </div>
+
+      <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+        Masuk untuk melihat profilmu
+      </h2>
+      <p className="text-zinc-500 text-sm sm:text-base max-w-sm mb-7">
+        Simpan film favorit, atur watchlist, dan lihat riwayat tontonanmu dengan
+        membuat akun gratis.
+      </p>
+
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <button
+          onClick={() => openLogin()}
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 rounded-full font-semibold text-sm transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20"
+        >
+          <LogIn size={16} />
+          Masuk
+        </button>
+        <button
+          onClick={openRegister}
+          className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-6 py-2.5 rounded-full font-semibold text-sm transition-all hover:scale-[1.03] active:scale-95"
+        >
+          Buat Akun
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("favorites");
   const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white">
+        <Navbar forceVisible />
+        <LoginGate />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -183,18 +251,13 @@ export default function Profile() {
         <div className="pointer-events-none absolute -top-24 right-0 w-72 h-72 bg-red-600/10 rounded-full blur-3xl" />
 
         <div className="relative max-w-5xl mx-auto flex items-center gap-4 sm:gap-6">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center shrink-0 ring-4 ring-zinc-900 shadow-lg shadow-red-600/20">
-            <User size={30} className="text-white" />
-          </div>
+          <UserAvatar name={user.name} size={72} />
 
           <div className="min-w-0">
             <h1 className="text-xl sm:text-2xl font-bold truncate">
-              {user?.name || "Movie Explorer"}
+              {user.name}
             </h1>
-
-            <p className="text-zinc-500 text-sm truncate">
-              {user?.email || "Belum masuk akun — login segera hadir"}
-            </p>
+            <p className="text-zinc-500 text-sm truncate">{user.email}</p>
           </div>
         </div>
       </div>

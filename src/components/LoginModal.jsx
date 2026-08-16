@@ -36,8 +36,6 @@ export default function LoginModal() {
   const [shouldRender, setShouldRender] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
-  // Reset SEMUA state form saat modal baru dibuka — mencegah data/notif
-  // dari sesi sebelumnya "nyangkut" karena komponen ini tidak unmount penuh
   useEffect(() => {
     if (isLoginOpen) {
       setShouldRender(true);
