@@ -9,7 +9,6 @@ import {
   Clapperboard,
   Eye,
   EyeOff,
-  CheckCircle2,
 } from "lucide-react";
 
 const CLOSE_DURATION = 200;
@@ -32,16 +31,24 @@ export default function LoginModal() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const [shouldRender, setShouldRender] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 
+  // Reset SEMUA state form saat modal baru dibuka — mencegah data/notif
+  // dari sesi sebelumnya "nyangkut" karena komponen ini tidak unmount penuh
   useEffect(() => {
     if (isLoginOpen) {
       setShouldRender(true);
       setIsClosing(false);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setError("");
+      setShowPassword(false);
+      setShowConfirmPassword(false);
     } else if (shouldRender) {
       setIsClosing(true);
       const timer = setTimeout(() => {
@@ -70,7 +77,6 @@ export default function LoginModal() {
 
   useEffect(() => {
     setError("");
-    setSuccessMessage("");
     setShowPassword(false);
     setShowConfirmPassword(false);
   }, [authMode]);
@@ -87,17 +93,12 @@ export default function LoginModal() {
     e.preventDefault();
 
     setError("");
-    setSuccessMessage("");
     setIsLoading(true);
 
     try {
       if (authMode === "login") {
         await login(email, password);
-        setSuccessMessage("Berhasil masuk! Mengalihkan...");
-        setTimeout(() => {
-          setEmail("");
-          setPassword("");
-        }, 600);
+        // Toast + closeLogin() sudah dipanggil dari dalam AuthContext
         return;
       }
 
@@ -106,13 +107,8 @@ export default function LoginModal() {
       }
 
       await register(name, email, password);
-
-      setName("");
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-      setSuccessMessage("Akun berhasil dibuat! Silakan masuk dengan akunmu.");
-      setTimeout(() => setAuthMode("login"), 1200);
+      // Toast sukses sudah dipanggil dari AuthContext
+      setAuthMode("login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -192,16 +188,6 @@ export default function LoginModal() {
                 : "Buat akun untuk menyimpan data filmmu."}
             </p>
           </div>
-
-          {successMessage && (
-            <div
-              style={{ animation: "popIn 0.25s ease-out" }}
-              className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5"
-            >
-              <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
-              <p className="text-sm text-emerald-400">{successMessage}</p>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {authMode === "register" && (

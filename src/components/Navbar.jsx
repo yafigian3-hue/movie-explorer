@@ -2,7 +2,7 @@
 
 import { NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, Bell, Clapperboard } from "lucide-react";
+import { Menu, X, Clapperboard, LogOut } from "lucide-react";
 import SearchBar from "./SearchBar";
 import useSearch from "../context/useSearch";
 import { useAuth } from "../context/AuthContext";
@@ -22,6 +22,19 @@ const mobileLinkClass = ({ isActive }) =>
       ? "bg-red-600 text-white"
       : "text-zinc-400 hover:bg-zinc-800/60 hover:text-white"
   }`;
+
+function UserAvatar({ name, size = "sm" }) {
+  const initial = name?.charAt(0).toUpperCase() || "?";
+  const dimension = size === "sm" ? "w-7 h-7 text-xs" : "w-9 h-9 text-sm";
+
+  return (
+    <div
+      className={`${dimension} rounded-full bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center font-bold text-white shrink-0`}
+    >
+      {initial}
+    </div>
+  );
+}
 
 export default function Navbar({ forceVisible = false }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,36 +104,34 @@ export default function Navbar({ forceVisible = false }) {
               <SearchBar isMobile={true} />
             </div>
 
-            <button
-              type="button"
-              aria-label="Notifikasi"
-              className="hidden lg:flex p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/70 transition-colors shrink-0"
-            >
-              <Bell size={18} />
-            </button>
             {user ? (
-              <div className="hidden lg:flex items-center gap-2">
+              <div className="hidden lg:flex items-center gap-1.5">
                 <NavLink
                   to="/profile"
                   onClick={clearSearch}
-                  className="px-3 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-sm font-medium text-zinc-300 hover:text-white hover:border-zinc-700 transition-colors"
+                  className="flex items-center gap-2 pl-1.5 pr-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors"
                 >
-                  {user.name}
+                  <UserAvatar name={user.name} />
+                  <span className="text-sm font-medium text-zinc-200 max-w-[100px] truncate">
+                    {user.name}
+                  </span>
                 </NavLink>
 
                 <button
                   type="button"
                   onClick={logout}
-                  className="px-3 py-2 rounded-full text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/70 transition-colors"
+                  aria-label="Keluar"
+                  title="Keluar"
+                  className="p-2 rounded-full text-zinc-500 hover:text-red-400 hover:bg-zinc-800/70 transition-colors"
                 >
-                  Logout
+                  <LogOut size={17} />
                 </button>
               </div>
             ) : (
               <button
                 type="button"
-                onClick={() => openLogin("Silakan login untuk melanjutkan.")}
-                className="hidden lg:flex px-4 py-2 rounded-full bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-all active:scale-95"
+                onClick={() => openLogin()}
+                className="hidden lg:flex px-4 py-2 rounded-full bg-red-600 hover:bg-red-500 text-white text-sm font-semibold transition-all active:scale-95 shadow-lg shadow-red-600/20"
               >
                 Masuk
               </button>
@@ -140,7 +151,7 @@ export default function Navbar({ forceVisible = false }) {
         {/* Mobile Menu */}
         <div
           className="lg:hidden overflow-hidden transition-all duration-300 ease-out"
-          style={{ maxHeight: isOpen ? "300px" : "0px" }}
+          style={{ maxHeight: isOpen ? "360px" : "0px" }}
         >
           <div className="space-y-1.5 border-t border-zinc-800/70 mt-1 pt-4 pb-4">
             <NavLink to="/" onClick={closeAll} className={mobileLinkClass}>
@@ -160,18 +171,19 @@ export default function Navbar({ forceVisible = false }) {
             >
               Profile
             </NavLink>
+
             {user ? (
               <>
-                <div className="px-4 py-3 border-t border-zinc-800/70 mt-2 pt-3">
-                  <p className="text-xs text-zinc-500 uppercase tracking-wider">
-                    Akun
-                  </p>
-
-                  <p className="text-sm font-semibold text-white mt-1 truncate">
-                    {user.name}
-                  </p>
-
-                  <p className="text-xs text-zinc-500 truncate">{user.email}</p>
+                <div className="flex items-center gap-3 px-4 py-3 border-t border-zinc-800/70 mt-2 pt-4">
+                  <UserAvatar name={user.name} size="lg" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white truncate">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-zinc-500 truncate">
+                      {user.email}
+                    </p>
+                  </div>
                 </div>
 
                 <button
@@ -180,8 +192,9 @@ export default function Navbar({ forceVisible = false }) {
                     logout();
                     setIsOpen(false);
                   }}
-                  className="w-full px-4 py-2.5 rounded-lg text-left text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-white transition-colors"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-left text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-white transition-colors"
                 >
+                  <LogOut size={16} />
                   Logout
                 </button>
               </>
@@ -189,21 +202,14 @@ export default function Navbar({ forceVisible = false }) {
               <button
                 type="button"
                 onClick={() => {
-                  openLogin("Silakan login untuk melanjutkan.");
+                  openLogin();
                   setIsOpen(false);
                 }}
-                className="w-full px-4 py-2.5 rounded-lg text-left text-sm font-semibold text-white bg-red-600 hover:bg-red-500 transition-colors"
+                className="w-full mt-2 px-4 py-2.5 rounded-lg text-center text-sm font-semibold text-white bg-red-600 hover:bg-red-500 transition-colors"
               >
                 Masuk
               </button>
             )}
-            <button
-              type="button"
-              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-white transition-colors"
-            >
-              <Bell size={16} />
-              Notifikasi
-            </button>
           </div>
         </div>
       </div>
