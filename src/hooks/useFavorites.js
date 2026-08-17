@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getAuthHeaders } from "../utils/auth";
 
 export default function useFavorites() {
-  const { token } = useAuth();
+  const { token, handleSessionExpired } = useAuth();
 
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +24,12 @@ export default function useFavorites() {
         headers: getAuthHeaders(token),
       });
 
+      if (response.status === 401) {
+        handleSessionExpired();
+        setFavorites([]);
+        return;
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -31,13 +37,12 @@ export default function useFavorites() {
       }
 
       setFavorites(data);
-    } catch (err) {
-      console.error("Gagal mengambil favorite:", err);
-      setFavorites([]);
+    } catch (error) {
+      console.error("Gagal mengambil favorite:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [token]);
+  }, [token, handleSessionExpired]);
 
   useEffect(() => {
     fetchFavorites();
@@ -69,6 +74,11 @@ export default function useFavorites() {
           }),
         });
 
+        if (response.status === 401) {
+          handleSessionExpired();
+          return;
+        }
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -82,7 +92,7 @@ export default function useFavorites() {
         setIsSaving(false);
       }
     },
-    [token],
+    [token, handleSessionExpired],
   );
 
   const removeFavorite = useCallback(
@@ -100,6 +110,11 @@ export default function useFavorites() {
           headers: getAuthHeaders(token),
         });
 
+        if (response.status === 401) {
+          handleSessionExpired();
+          return;
+        }
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -115,7 +130,7 @@ export default function useFavorites() {
         setIsSaving(false);
       }
     },
-    [token],
+    [token, handleSessionExpired],
   );
 
   const isFavorite = useCallback(

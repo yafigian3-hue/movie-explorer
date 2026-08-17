@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import { API_URL } from "../config/api";
 import { useToast } from "./ToastContext";
 
@@ -13,6 +20,8 @@ export function AuthProvider({ children }) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [loginMessage, setLoginMessage] = useState("");
+
+  const sessionExpiredRef = useRef(false);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
@@ -50,17 +59,19 @@ export function AuthProvider({ children }) {
       throw new Error(data.message || "Login gagal");
     }
 
-   setUser(data.user);
-   setToken(data.token);
+    sessionExpiredRef.current = false;
 
-   localStorage.setItem("token", data.token);
-   localStorage.setItem("user", JSON.stringify(data.user));
+    setUser(data.user);
+    setToken(data.token);
 
-   showToast(`Selamat datang, ${data.user.name}!`, "success");
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
-   closeLogin();
+    showToast(`Selamat datang, ${data.user.name}!`, "success");
 
-   return data;
+    closeLogin();
+
+    return data;
   };
 
   const register = async (name, email, password) => {
@@ -117,6 +128,25 @@ export function AuthProvider({ children }) {
     setLoginMessage("");
   };
 
+  const handleSessionExpired = useCallback(() => {
+    if (sessionExpiredRef.current) {
+      return;
+    }
+
+    sessionExpiredRef.current = true;
+
+    setUser(null);
+    setToken(null);
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    showToast("Sesi telah berakhir. Silakan login kembali.", "error");
+
+    setIsLoginOpen(false);
+    setLoginMessage("");
+  }, [showToast]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -125,6 +155,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        handleSessionExpired,
         isLoginOpen,
         authMode,
         loginMessage,
