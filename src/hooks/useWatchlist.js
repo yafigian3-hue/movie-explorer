@@ -3,16 +3,16 @@ import { API_URL } from "../config/api";
 import { useAuth } from "../context/AuthContext";
 import { getAuthHeaders } from "../utils/auth";
 
-export default function useHistory() {
+export default function useWatchlist() {
   const { token, handleSessionExpired } = useAuth();
 
   const [watchlist, setWatchlist] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const fetchHistory = useCallback(async () => {
+  const fetchWatchlist = useCallback(async () => {
     if (!token) {
-      setHistory([]);
+      setWatchlist([]);
       setIsLoading(false);
       return;
     }
@@ -20,43 +20,45 @@ export default function useHistory() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/history`, {
+      const response = await fetch(`${API_URL}/watchlist`, {
         headers: getAuthHeaders(token),
       });
 
       if (response.status === 401) {
         handleSessionExpired();
-        setHistory([]);
+        setWatchlist([]);
         return;
       }
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Gagal mengambil history");
+        throw new Error(data.message || "Gagal mengambil watchlist");
       }
 
-      setHistory(data);
+      setWatchlist(data);
     } catch (error) {
-      console.error("Gagal mengambil history:", error);
+      console.error("Gagal mengambil watchlist:", error);
     } finally {
       setIsLoading(false);
     }
   }, [token, handleSessionExpired]);
 
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    fetchWatchlist();
+  }, [fetchWatchlist]);
 
-  const addHistory = useCallback(
+  const addWatchlist = useCallback(
     async (movie) => {
       if (!token) {
         console.error("User belum login");
         return;
       }
 
+      setIsSaving(true);
+
       try {
-        const response = await fetch(`${API_URL}/history`, {
+        const response = await fetch(`${API_URL}/watchlist`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -77,67 +79,70 @@ export default function useHistory() {
           return;
         }
 
-        const historyMovie = await response.json();
+        const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(historyMovie.message || "Gagal menambah history");
+          throw new Error(data.message || "Gagal menambah watchlist");
         }
 
-        setHistory((prev) => {
-          const filteredHistory = prev.filter(
-            (item) => item.movieId !== historyMovie.movieId,
-          );
-
-          return [historyMovie, ...filteredHistory];
-        });
-
-        return historyMovie;
+        setWatchlist((prev) => [...prev, data]);
       } catch (error) {
-        console.error("Gagal menambah history:", error);
+        console.error("Gagal menambah watchlist:", error);
+      } finally {
+        setIsSaving(false);
       }
     },
     [token, handleSessionExpired],
   );
 
-  const deleteAllHistory = useCallback(async () => {
-    if (!token) {
-      console.error("User belum login");
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_URL}/history`, {
-        method: "DELETE",
-        headers: getAuthHeaders(token),
-      });
-
-      if (response.status === 401) {
-        handleSessionExpired();
+  const removeWatchlist = useCallback(
+    async (id) => {
+      if (!token) {
+        console.error("User belum login");
         return;
       }
 
-      if (!response.ok) {
-        let message = "Gagal menghapus history";
+      setIsSaving(true);
 
-        try {
-          const data = await response.json();
-          message = data.message || message;
-        } catch {}
+      try {
+        const response = await fetch(`${API_URL}/watchlist/${id}`, {
+          method: "DELETE",
+          headers: getAuthHeaders(token),
+        });
 
-        throw new Error(message);
+        if (response.status === 401) {
+          handleSessionExpired();
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Gagal menghapus watchlist");
+        }
+
+        setWatchlist((prev) => prev.filter((movie) => movie.movieId !== id));
+      } catch (error) {
+        console.error("Gagal menghapus watchlist:", error);
+      } finally {
+        setIsSaving(false);
       }
+    },
+    [token, handleSessionExpired],
+  );
 
-      setHistory([]);
-    } catch (error) {
-      console.error("Gagal menghapus history:", error);
-    }
-  }, [token, handleSessionExpired]);
+  const isInWatchlist = useCallback(
+    (id) => watchlist.some((movie) => movie.movieId === id),
+    [watchlist],
+  );
 
   return {
-    history,
+    watchlist,
     isLoading,
-    addHistory,
-    deleteAllHistory,
-    fetchHistory,
+    isSaving,
+    addWatchlist,
+    removeWatchlist,
+    isInWatchlist,
+    fetchWatchlist,
   };
 }
