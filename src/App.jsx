@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { Loader2 } from "lucide-react";
 import LoginModal from "./components/LoginModal";
+import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 const Home = lazy(() => import("./pages/Home"));
 const Movies = lazy(() => import("./pages/Movies"));
@@ -20,6 +22,8 @@ function PageFallback() {
 export default function App() {
   return (
     <Suspense fallback={<PageFallback />}>
+      <ScrollToTop />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/movies" element={<Movies />} />
@@ -27,6 +31,8 @@ export default function App() {
         <Route path="/search" element={<SearchResult />} />
         <Route path="/profile" element={<Profile />} />
       </Routes>
+
+      <Footer />
       <LoginModal />
     </Suspense>
   );
