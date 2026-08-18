@@ -41,11 +41,12 @@ export default function useWatchlist() {
 
       setWatchlist(data);
     } catch (error) {
-      console.error("Gagal mengambil watchlist:", error);
+      console.error("Gagal mengambil Watchlist:", error);
+      showToast("Gagal mengambil data Watchlist.", "error");
     } finally {
       setIsLoading(false);
     }
-  }, [token, handleSessionExpired]);
+  }, [token, handleSessionExpired, showToast]);
 
   useEffect(() => {
     fetchWatchlist();
@@ -93,6 +94,7 @@ export default function useWatchlist() {
         showToast("Film ditambahkan ke Watchlist.", "success");
       } catch (error) {
         console.error("Gagal menambah watchlist:", error);
+         showToast("Gagal menambahkan film ke Watchlist.", "error");
       } finally {
         setIsSaving(false);
       }
@@ -131,6 +133,7 @@ export default function useWatchlist() {
         showToast("Film dihapus dari Watchlist.", "success");
       } catch (error) {
         console.error("Gagal menghapus watchlist:", error);
+        showToast("Gagal menghapus film dari Watchlist.", "error");
       } finally {
         setIsSaving(false);
       }

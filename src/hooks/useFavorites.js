@@ -42,10 +42,11 @@ export default function useFavorites() {
       setFavorites(data);
     } catch (error) {
       console.error("Gagal mengambil favorite:", error);
+      showToast("Gagal mengambil data Favorite.", "error");
     } finally {
       setIsLoading(false);
     }
-  }, [token, handleSessionExpired]);
+  }, [token, handleSessionExpired, showToast]);
 
   useEffect(() => {
     fetchFavorites();
@@ -91,8 +92,9 @@ export default function useFavorites() {
         setFavorites((prev) => [...prev, data]);
 
         showToast("Film ditambahkan ke Favorite.", "success");
-      } catch (err) {
-        console.error("Gagal menambah favorite:", err);
+      } catch (error) {
+        console.error("Gagal menambah favorite:", error);
+        showToast("Gagal menambahkan film ke Favorite.", "error");
       } finally {
         setIsSaving(false);
       }
@@ -131,8 +133,9 @@ export default function useFavorites() {
         );
 
         showToast("Film dihapus dari Favorite.", "success");
-      } catch (err) {
-        console.error("Gagal menghapus favorite:", err);
+      } catch (error) {
+        console.error("Gagal menghapus favorite:", error);
+        showToast("Gagal menghapus film dari Favorite.", "error");
       } finally {
         setIsSaving(false);
       }

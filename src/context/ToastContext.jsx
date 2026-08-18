@@ -45,10 +45,10 @@ function ToastContainer({ toasts, onDismiss }) {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-20 inset-x-0 sm:inset-x-auto sm:right-5 z-[200] flex flex-col items-center sm:items-end gap-2.5 px-4 sm:px-0 pointer-events-none">
+    <div className="fixed top-[4.5rem] right-3 sm:right-5 z-[200] flex flex-col items-end gap-2 pointer-events-none">
       <style>{`
         @keyframes toastIn {
-          from { opacity: 0; transform: translateY(-12px) scale(0.96); }
+          from { opacity: 0; transform: translateY(-8px) scale(0.95); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
         @keyframes toastProgress {
@@ -60,26 +60,26 @@ function ToastContainer({ toasts, onDismiss }) {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          style={{ animation: "toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)" }}
-          className="pointer-events-auto relative w-full sm:w-auto sm:min-w-[320px] max-w-sm rounded-xl bg-zinc-900/95 backdrop-blur-md border border-zinc-800 shadow-2xl shadow-black/40 overflow-hidden"
+          style={{ animation: "toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)" }}
+          className="pointer-events-auto relative w-auto max-w-[85vw] sm:max-w-xs rounded-lg bg-zinc-900/95 backdrop-blur-md border border-zinc-800 shadow-xl shadow-black/40 overflow-hidden"
         >
-          <div className="flex items-center gap-3 px-4 py-3.5">
+          <div className="flex items-center gap-2 pl-3 pr-2 py-2">
             {toast.type === "success" ? (
-              <CheckCircle2 size={18} className="text-zinc-300 shrink-0" />
+              <CheckCircle2 size={14} className="text-zinc-300 shrink-0" />
             ) : (
-              <XCircle size={18} className="text-red-500 shrink-0" />
+              <XCircle size={14} className="text-red-500 shrink-0" />
             )}
 
-            <p className="text-sm font-medium text-zinc-200 flex-1 leading-snug">
+            <p className="text-xs font-medium text-zinc-200 leading-snug whitespace-nowrap">
               {toast.message}
             </p>
 
             <button
               onClick={() => onDismiss(toast.id)}
               aria-label="Tutup notifikasi"
-              className="text-zinc-600 hover:text-zinc-300 transition-colors shrink-0"
+              className="text-zinc-600 hover:text-zinc-300 transition-colors shrink-0 ml-0.5"
             >
-              <X size={15} />
+              <X size={12} />
             </button>
           </div>
 
