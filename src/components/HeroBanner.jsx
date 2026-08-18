@@ -256,12 +256,14 @@ export default function HeroBanner({
             <div className="flex flex-wrap gap-2.5 sm:gap-3">
               <button
                 onClick={() => navigate(`/movie/${currentMovie.id}`)}
+                aria-label="Tonton"
                 className="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white px-5 py-2 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95 shadow-lg shadow-red-600/20"
               >
                 <Play size={16} className="fill-white" /> Tonton
               </button>
               <button
                 onClick={() => navigate(`/movie/${currentMovie.id}`)}
+                aria-label="Info"
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/15 text-white px-5 py-2 sm:px-7 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all hover:scale-[1.03] active:scale-95"
               >
                 <Info size={16} /> Info

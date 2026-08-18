@@ -162,7 +162,7 @@ export default function LoginModal() {
           type="button"
           onClick={handleClose}
           aria-label="Tutup"
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-11 h-11 flex items-center justify-center rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
         >
           <X size={18} />
         </button>
@@ -179,7 +179,7 @@ export default function LoginModal() {
             >
               {authMode === "login" ? "Masuk ke akunmu" : "Buat akun baru"}
             </h2>
-            <p className="mt-1.5 text-sm text-zinc-500 max-w-xs">
+            <p className="mt-1.5 text-sm text-zinc-400 max-w-xs">
               {authMode === "login"
                 ? loginMessage ||
                   "Simpan favorit dan watchlist filmmu di mana saja."
@@ -253,7 +253,7 @@ export default function LoginModal() {
                   aria-label={
                     showPassword ? "Sembunyikan password" : "Lihat password"
                   }
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center rounded-full text-zinc-500 hover:text-zinc-300 transition-colors"
                 >
                   {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>

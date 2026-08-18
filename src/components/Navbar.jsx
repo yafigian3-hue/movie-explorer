@@ -69,6 +69,7 @@ export default function Navbar({ forceVisible = false }) {
           <NavLink
             to="/"
             onClick={clearSearch}
+            aria-label="Movie Explorer - Beranda"
             className="flex items-center gap-2 shrink-0 justify-self-start"
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 bg-red-600 rounded-lg flex items-center justify-center transition-transform hover:scale-105">
@@ -109,6 +110,7 @@ export default function Navbar({ forceVisible = false }) {
                 <NavLink
                   to="/profile"
                   onClick={clearSearch}
+                  aria-label="Movie Explorer - Profile"
                   className="flex items-center gap-2 pl-1.5 pr-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors"
                 >
                   <UserAvatar name={user.name} />
@@ -122,7 +124,7 @@ export default function Navbar({ forceVisible = false }) {
                   onClick={logout}
                   aria-label="Keluar"
                   title="Keluar"
-                  className="p-2 rounded-full text-zinc-500 hover:text-red-400 hover:bg-zinc-800/70 transition-colors"
+                  className="w-11 h-11 flex items-center justify-center rounded-full text-zinc-500 hover:text-red-400 hover:bg-zinc-800/70 transition-colors"
                 >
                   <LogOut size={17} />
                 </button>
@@ -141,7 +143,7 @@ export default function Navbar({ forceVisible = false }) {
               onClick={() => setIsOpen((prev) => !prev)}
               aria-label={isOpen ? "Tutup menu" : "Buka menu"}
               aria-expanded={isOpen}
-              className="lg:hidden p-2 rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/70 transition-colors shrink-0"
+              className="lg:hidden w-11 h-11 flex items-center justify-center rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/70 transition-colors shrink-0"
             >
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -192,6 +194,7 @@ export default function Navbar({ forceVisible = false }) {
                     logout();
                     setIsOpen(false);
                   }}
+                  
                   className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-left text-sm font-medium text-zinc-400 hover:bg-zinc-800/60 hover:text-white transition-colors"
                 >
                   <LogOut size={16} />
