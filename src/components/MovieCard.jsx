@@ -27,7 +27,7 @@ function MovieCard({ movie, subtitle = null }) {
   return (
     <div className="group relative h-full">
       <div
-        className="relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 transition-all duration-300 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-600/20 h-full cursor-pointer flex flex-col"
+        className="relative rounded-xl overflow-hidden bg-zinc-800 border border-zinc-700 transition-all duration-300 hover:border-red-600/50 hover:shadow-2xl hover:shadow-red-600/20 h-full cursor-pointer flex flex-col"
         onClick={(e) => {
           e.stopPropagation();
           navigate(`/movie/${movieId}`);
@@ -69,7 +69,7 @@ function MovieCard({ movie, subtitle = null }) {
           </div>
 
           {description && (
-            <p className="text-zinc-500 text-xs sm:text-sm mt-2 line-clamp-2">
+            <p className="text-zinc-400 text-xs sm:text-sm mt-2 line-clamp-2">
               {description}
             </p>
           )}
