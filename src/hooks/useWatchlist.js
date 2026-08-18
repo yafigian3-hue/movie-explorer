@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "../config/api";
 import { useAuth } from "../context/AuthContext";
 import { getAuthHeaders } from "../utils/auth";
+import { useToast } from "../context/ToastContext";
 
 export default function useWatchlist() {
   const { token, handleSessionExpired } = useAuth();
@@ -9,6 +10,8 @@ export default function useWatchlist() {
   const [watchlist, setWatchlist] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const { showToast } = useToast();
 
   const fetchWatchlist = useCallback(async () => {
     if (!token) {
@@ -86,13 +89,15 @@ export default function useWatchlist() {
         }
 
         setWatchlist((prev) => [...prev, data]);
+
+        showToast("Film ditambahkan ke Watchlist.", "success");
       } catch (error) {
         console.error("Gagal menambah watchlist:", error);
       } finally {
         setIsSaving(false);
       }
     },
-    [token, handleSessionExpired],
+    [token, handleSessionExpired, showToast],
   );
 
   const removeWatchlist = useCallback(
@@ -122,13 +127,15 @@ export default function useWatchlist() {
         }
 
         setWatchlist((prev) => prev.filter((movie) => movie.movieId !== id));
+
+        showToast("Film dihapus dari Watchlist.", "success");
       } catch (error) {
         console.error("Gagal menghapus watchlist:", error);
       } finally {
         setIsSaving(false);
       }
     },
-    [token, handleSessionExpired],
+    [token, handleSessionExpired, showToast],
   );
 
   const isInWatchlist = useCallback(

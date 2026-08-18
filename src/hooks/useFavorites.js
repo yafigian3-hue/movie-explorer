@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { API_URL } from "../config/api";
 import { useAuth } from "../context/AuthContext";
 import { getAuthHeaders } from "../utils/auth";
+import { useToast } from "../context/ToastContext";
 
 export default function useFavorites() {
   const { token, handleSessionExpired } = useAuth();
@@ -9,6 +10,8 @@ export default function useFavorites() {
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const { showToast } = useToast();
 
   const fetchFavorites = useCallback(async () => {
     if (!token) {
@@ -86,13 +89,15 @@ export default function useFavorites() {
         }
 
         setFavorites((prev) => [...prev, data]);
+
+        showToast("Film ditambahkan ke Favorite.", "success");
       } catch (err) {
         console.error("Gagal menambah favorite:", err);
       } finally {
         setIsSaving(false);
       }
     },
-    [token, handleSessionExpired],
+    [token, handleSessionExpired, showToast],
   );
 
   const removeFavorite = useCallback(
@@ -124,13 +129,15 @@ export default function useFavorites() {
         setFavorites((prev) =>
           prev.filter((favorite) => favorite.movieId !== id),
         );
+
+        showToast("Film dihapus dari Favorite.", "success");
       } catch (err) {
         console.error("Gagal menghapus favorite:", err);
       } finally {
         setIsSaving(false);
       }
     },
-    [token, handleSessionExpired],
+    [token, handleSessionExpired, showToast],
   );
 
   const isFavorite = useCallback(
