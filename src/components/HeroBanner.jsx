@@ -104,8 +104,6 @@ export default function HeroBanner({
   const showSlider = !isDetail && heroMovies.length > 1;
   const showingTrailer = isPlayingTrailer && Boolean(movieTrailer);
 
-  // Tinggi dikurangi khusus di mobile — rasio container yang terlalu
-  // tinggi & sempit memaksa object-cover crop habis kiri-kanan gambar.
   const heightClass = isDetail
     ? "h-[36vh] sm:h-[52vh] lg:h-[62vh]"
     : isCompact
